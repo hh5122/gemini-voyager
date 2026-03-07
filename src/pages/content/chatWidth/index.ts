@@ -61,7 +61,12 @@ const normalizePercent = (value: number, fallback: number) => {
 
 function applyWidth(widthPercent: number) {
   const normalizedPercent = normalizePercent(widthPercent, DEFAULT_PERCENT);
-  const widthValue = `${normalizedPercent}vw`;
+  // Use screen width as reference to compute pixel-based max-width.
+  // This provides adaptive behavior for split-screen / narrow windows:
+  // - Fullscreen: width ≈ percent% of screen (as intended by the slider)
+  // - Split-screen: content fills available space since pixel max-width > viewport
+  const screenWidth = screen.availWidth || screen.width || 1920;
+  const widthValue = `${Math.round((normalizedPercent / 100) * screenWidth)}px`;
 
   let style = document.getElementById(STYLE_ID) as HTMLStyleElement;
   if (!style) {
@@ -195,6 +200,20 @@ function applyWidth(widthPercent: number) {
       max-width: ${widthValue} !important;
     }
 
+    /* Extend input-container gradient to match chat width */
+    input-container {
+      max-width: none !important;
+      width: 100% !important;
+    }
+
+    input-container .input-area-container,
+    input-container input-area-v2 {
+      max-width: ${widthValue} !important;
+      width: min(100%, ${widthValue}) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
     /* Specific fix for user bubble background to fit content but respect max-width */
     .user-query-bubble-with-background {
       max-width: ${widthValue} !important;
@@ -210,16 +229,23 @@ function removeStyles() {
   }
 }
 
+const ENABLED_KEY = 'gvChatWidthEnabled';
+
 export function startChatWidthAdjuster() {
   let currentWidthPercent = DEFAULT_PERCENT;
+  let enabled = false;
 
-  // Load initial width (%), migrating legacy px values when seen
-  chrome.storage?.sync?.get({ geminiChatWidth: DEFAULT_PERCENT }, (res) => {
+  // Load initial state
+  chrome.storage?.sync?.get({ geminiChatWidth: DEFAULT_PERCENT, [ENABLED_KEY]: false }, (res) => {
     const storedWidth = res?.geminiChatWidth;
     const numericStoredWidth = typeof storedWidth === 'number' ? storedWidth : DEFAULT_PERCENT;
     const normalized = normalizePercent(numericStoredWidth, DEFAULT_PERCENT);
     currentWidthPercent = normalized;
-    applyWidth(currentWidthPercent);
+    enabled = res?.[ENABLED_KEY] === true;
+
+    if (enabled) {
+      applyWidth(currentWidthPercent);
+    }
 
     if (typeof storedWidth === 'number' && storedWidth !== normalized) {
       try {
@@ -235,12 +261,25 @@ export function startChatWidthAdjuster() {
     changes: Record<string, chrome.storage.StorageChange>,
     area: string,
   ) => {
-    if (area === 'sync' && changes.geminiChatWidth) {
+    if (area !== 'sync') return;
+
+    if (changes[ENABLED_KEY]) {
+      enabled = changes[ENABLED_KEY].newValue === true;
+      if (enabled) {
+        applyWidth(currentWidthPercent);
+      } else {
+        removeStyles();
+      }
+    }
+
+    if (changes.geminiChatWidth) {
       const newWidth = changes.geminiChatWidth.newValue;
       if (typeof newWidth === 'number') {
         const normalized = normalizePercent(newWidth, DEFAULT_PERCENT);
         currentWidthPercent = normalized;
-        applyWidth(currentWidthPercent);
+        if (enabled) {
+          applyWidth(currentWidthPercent);
+        }
 
         if (normalized !== newWidth) {
           try {
@@ -263,8 +302,9 @@ export function startChatWidthAdjuster() {
       clearTimeout(debounceTimer);
     }
     debounceTimer = window.setTimeout(() => {
-      // Use cached width instead of reading from storage
-      applyWidth(currentWidthPercent);
+      if (enabled) {
+        applyWidth(currentWidthPercent);
+      }
       debounceTimer = null;
     }, 200);
   });

@@ -1,6 +1,6 @@
 {
   "extName": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Extension name"
   },
   "extDescription": {
@@ -52,7 +52,7 @@
     "description": "Language label"
   },
   "pm_title": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Prompt Manager title"
   },
   "pm_add": {
@@ -987,6 +987,10 @@
     "message": "Contrai a área de entrada quando vazia para ganhar mais espaço de leitura",
     "description": "Input collapse feature hint"
   },
+  "inputCollapseShortcutHint": {
+    "message": "{modifier}+I para expandir",
+    "description": "Shortcut hint for expanding collapsed input. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
+  },
   "inputCollapsePlaceholder": {
     "message": "Mensagem para o Gemini",
     "description": "Placeholder text shown in collapsed input"
@@ -1000,12 +1004,12 @@
     "description": "Hint text explaining the collapse when not empty feature"
   },
   "ctrlEnterSend": {
-    "message": "Ctrl+Enter para enviar",
-    "description": "Ctrl+Enter to send toggle label"
+    "message": "{modifier}+Enter para enviar",
+    "description": "Modifier+Enter to send toggle label. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "ctrlEnterSendHint": {
-    "message": "Pressione Ctrl+Enter para enviar mensagens, Enter para nova linha",
-    "description": "Ctrl+Enter to send feature hint"
+    "message": "Pressione {modifier}+Enter para enviar mensagens, Enter para nova linha",
+    "description": "Modifier+Enter to send feature hint. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "batch_delete_confirm": {
     "message": "Tem certeza de que deseja excluir {count} conversa(s)? Esta ação não pode ser desfeita.",
@@ -1188,11 +1192,11 @@
     "description": "Wide subfolder indentation label"
   },
   "export_select_mode_select_all": {
-    "message": "Select all",
+    "message": "Selecionar tudo",
     "description": "Selection mode select all toggle"
   },
   "export_select_mode_count": {
-    "message": "Selected {count}",
+    "message": "Selecionados {count}",
     "description": "Selection mode selected message count"
   },
   "export_select_mode_toggle": {
@@ -1259,13 +1263,29 @@
     "message": "Sites pesquisados",
     "description": "Cabeçalho de secção de sites pesquisados de Deep Research"
   },
-  "snowEffect": {
-    "message": "Efeito de neve",
-    "description": "Snow effect toggle label"
+  "visualEffect": {
+    "message": "Efeitos visuais",
+    "description": "Visual effect selector label"
   },
-  "snowEffectHint": {
-    "message": "Deixe nevar na página para um clima de inverno",
-    "description": "Snow effect feature hint"
+  "visualEffectHint": {
+    "message": "Adicione um clima sazonal a pagina",
+    "description": "Visual effect feature hint"
+  },
+  "visualEffectOff": {
+    "message": "Desligado",
+    "description": "Visual effect off option"
+  },
+  "visualEffectSnow": {
+    "message": "Neve",
+    "description": "Visual effect snow option"
+  },
+  "visualEffectSakura": {
+    "message": "Sakura",
+    "description": "Visual effect sakura option"
+  },
+  "visualEffectRain": {
+    "message": "Chuva",
+    "description": "Visual effect rain option"
   },
   "changelog_title": {
     "message": "Novidades",
@@ -1288,12 +1308,16 @@
     "description": "Changelog annotation pointing to docs icon"
   },
   "changelog_rate_chrome": {
-    "message": "Gosta do Gemini Voyager? Uma avaliação na Chrome Web Store ajuda outros a descobri-lo!",
+    "message": "Gosta do Voyager? Uma avaliação na Chrome Web Store ajuda outros a descobri-lo!",
     "description": "Chrome Web Store rating prompt in changelog modal"
   },
   "changelog_rate_chrome_cta": {
     "message": "Avaliar",
     "description": "Chrome Web Store rating CTA button text"
+  },
+  "changelog_badge_mode": {
+    "message": "Notificar com um selo NEW no botão flutuante em vez desta janela",
+    "description": "Changelog notification mode toggle label"
   },
   "forkConversation": {
     "message": "Fork",
@@ -1366,6 +1390,14 @@
   "platformAIStudio": {
     "message": "AI Studio",
     "description": "AI Studio platform label."
+  },
+  "export_select_mode_only_user": {
+    "message": "Selecionar apenas usuário",
+    "description": "Export selection mode: select only user messages"
+  },
+  "export_select_mode_only_ai": {
+    "message": "Selecionar apenas IA",
+    "description": "Export selection mode: select only AI messages"
   },
   "hideUpsell": {
     "message": "Ocultar avisos de upgrade",

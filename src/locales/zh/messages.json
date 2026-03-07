@@ -1,6 +1,6 @@
 {
   "extName": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "扩展程序名称"
   },
   "extDescription": {
@@ -52,7 +52,7 @@
     "description": "语言标签"
   },
   "pm_title": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "面板标题"
   },
   "pm_add": {
@@ -995,6 +995,10 @@
     "message": "输入框为空时自动折叠，获得更多阅读空间",
     "description": "输入框折叠功能提示"
   },
+  "inputCollapseShortcutHint": {
+    "message": "{modifier}+I 展开",
+    "description": "展开折叠输入框的快捷键提示。{modifier} 在 macOS 上替换为 ⌘，其他平台替换为 Ctrl"
+  },
   "inputCollapsePlaceholder": {
     "message": "给 Gemini 发消息",
     "description": "折叠输入框时显示的占位符文本"
@@ -1008,12 +1012,12 @@
     "description": "解释非空折叠功能的提示文本"
   },
   "ctrlEnterSend": {
-    "message": "Ctrl+Enter 发送",
-    "description": "Ctrl+Enter 发送开关标签"
+    "message": "{modifier}+Enter 发送",
+    "description": "Modifier+Enter 发送开关标签。{modifier} 在 macOS 上替换为 ⌘，其他平台替换为 Ctrl"
   },
   "ctrlEnterSendHint": {
-    "message": "按 Ctrl+Enter 发送消息，Enter 键仅换行",
-    "description": "Ctrl+Enter 发送功能提示"
+    "message": "按 {modifier}+Enter 发送消息，Enter 键仅换行",
+    "description": "Modifier+Enter 发送功能提示。{modifier} 在 macOS 上替换为 ⌘，其他平台替换为 Ctrl"
   },
   "batch_delete_confirm": {
     "message": "确定要删除 {count} 个会话吗？此操作无法撤销。",
@@ -1267,13 +1271,29 @@
     "message": "研究网站",
     "description": "深度研究已研究网站章节标题"
   },
-  "snowEffect": {
-    "message": "飘雪效果",
-    "description": "Snow effect toggle label"
+  "visualEffect": {
+    "message": "视觉特效",
+    "description": "Visual effect selector label"
   },
-  "snowEffectHint": {
-    "message": "在页面上飘雪，营造冬日氛围",
-    "description": "Snow effect feature hint"
+  "visualEffectHint": {
+    "message": "为页面增添季节氛围",
+    "description": "Visual effect feature hint"
+  },
+  "visualEffectOff": {
+    "message": "关闭",
+    "description": "Visual effect off option"
+  },
+  "visualEffectSnow": {
+    "message": "飘雪",
+    "description": "Visual effect snow option"
+  },
+  "visualEffectSakura": {
+    "message": "樱花",
+    "description": "Visual effect sakura option"
+  },
+  "visualEffectRain": {
+    "message": "雨",
+    "description": "Visual effect rain option"
   },
   "changelog_title": {
     "message": "更新内容",
@@ -1296,12 +1316,16 @@
     "description": "Changelog annotation pointing to docs icon"
   },
   "changelog_rate_chrome": {
-    "message": "觉得 Gemini Voyager 好用吗？在 Chrome 应用商店给个好评，能帮助更多人发现它！",
+    "message": "觉得 Voyager 好用吗？在 Chrome 应用商店给个好评，能帮助更多人发现它！",
     "description": "Chrome Web Store rating prompt in changelog modal"
   },
   "changelog_rate_chrome_cta": {
     "message": "立即评分",
     "description": "Chrome Web Store rating CTA button text"
+  },
+  "changelog_badge_mode": {
+    "message": "通过悬浮球上的 NEW 标记提醒，而非弹出此窗口",
+    "description": "Changelog notification mode toggle label"
   },
   "forkConversation": {
     "message": "分叉",
@@ -1374,5 +1398,13 @@
   "platformAIStudio": {
     "message": "AI Studio",
     "description": "AI Studio platform label."
+  },
+  "export_select_mode_only_user": {
+    "message": "仅选用户",
+    "description": "Export selection mode: select only user messages"
+  },
+  "export_select_mode_only_ai": {
+    "message": "仅选模型",
+    "description": "Export selection mode: select only AI messages"
   }
 }

@@ -1,6 +1,6 @@
 {
   "extName": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Extension name"
   },
   "extDescription": {
@@ -52,7 +52,7 @@
     "description": "Language label"
   },
   "pm_title": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Prompt Manager title"
   },
   "pm_add": {
@@ -987,6 +987,10 @@
     "message": "입력창이 비어 있을 때 접어서 더 많은 읽기 공간을 확보합니다",
     "description": "Input collapse feature hint"
   },
+  "inputCollapseShortcutHint": {
+    "message": "{modifier}+I 로 펼치기",
+    "description": "Shortcut hint for expanding collapsed input. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
+  },
   "inputCollapsePlaceholder": {
     "message": "Gemini 에게 메시지 보내기",
     "description": "Placeholder text shown in collapsed input"
@@ -1000,12 +1004,12 @@
     "description": "Hint text explaining the collapse when not empty feature"
   },
   "ctrlEnterSend": {
-    "message": "Ctrl+Enter 로 전송",
-    "description": "Ctrl+Enter to send toggle label"
+    "message": "{modifier}+Enter 로 전송",
+    "description": "Modifier+Enter to send toggle label. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "ctrlEnterSendHint": {
-    "message": "Ctrl+Enter 를 눌러 메시지를 전송하고, Enter 로 줄바꿈을 합니다",
-    "description": "Ctrl+Enter to send feature hint"
+    "message": "{modifier}+Enter 를 눌러 메시지를 전송하고, Enter 로 줄바꿈을 합니다",
+    "description": "Modifier+Enter to send feature hint. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "batch_delete_confirm": {
     "message": "{count}개의 대화를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
@@ -1259,13 +1263,29 @@
     "message": "조사한 웹사이트",
     "description": "Deep Research 조사한 웹사이트 섹션 헤더"
   },
-  "snowEffect": {
-    "message": "눈 효과",
-    "description": "Snow effect toggle label"
+  "visualEffect": {
+    "message": "시각 효과",
+    "description": "Visual effect selector label"
   },
-  "snowEffectHint": {
-    "message": "페이지에 눈이 내리는 겨울 분위기 연출",
-    "description": "Snow effect feature hint"
+  "visualEffectHint": {
+    "message": "페이지에 계절 분위기 연출",
+    "description": "Visual effect feature hint"
+  },
+  "visualEffectOff": {
+    "message": "끄기",
+    "description": "Visual effect off option"
+  },
+  "visualEffectSnow": {
+    "message": "눈",
+    "description": "Visual effect snow option"
+  },
+  "visualEffectSakura": {
+    "message": "벚꽃",
+    "description": "Visual effect sakura option"
+  },
+  "visualEffectRain": {
+    "message": "비",
+    "description": "Visual effect rain option"
   },
   "changelog_title": {
     "message": "새로운 기능",
@@ -1288,12 +1308,16 @@
     "description": "Changelog annotation pointing to docs icon"
   },
   "changelog_rate_chrome": {
-    "message": "Gemini Voyager가 마음에 드시나요? Chrome 웹 스토어에 평점을 남겨 더 많은 분들이 발견할 수 있게 해주세요!",
+    "message": "Voyager가 마음에 드시나요? Chrome 웹 스토어에 평점을 남겨 더 많은 분들이 발견할 수 있게 해주세요!",
     "description": "Chrome Web Store rating prompt in changelog modal"
   },
   "changelog_rate_chrome_cta": {
     "message": "평점 주기",
     "description": "Chrome Web Store rating CTA button text"
+  },
+  "changelog_badge_mode": {
+    "message": "이 팝업 대신 플로팅 버튼의 NEW 배지로 알림",
+    "description": "Changelog notification mode toggle label"
   },
   "forkConversation": {
     "message": "Fork",
@@ -1366,6 +1390,14 @@
   "platformAIStudio": {
     "message": "AI Studio",
     "description": "AI Studio platform label."
+  },
+  "export_select_mode_only_user": {
+    "message": "사용자만 선택",
+    "description": "Export selection mode: select only user messages"
+  },
+  "export_select_mode_only_ai": {
+    "message": "AI만 선택",
+    "description": "Export selection mode: select only AI messages"
   },
   "hideUpsell": {
     "message": "업그레이드 안내 숨기기",
