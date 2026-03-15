@@ -40,6 +40,7 @@ export const StorageKeys = {
   // Timeline
   TIMELINE_SCROLL_MODE: 'geminiTimelineScrollMode',
   TIMELINE_HIDE_CONTAINER: 'geminiTimelineHideContainer',
+  TIMELINE_BAR_WIDTH: 'geminiTimelineBarWidth',
   TIMELINE_DRAGGABLE: 'geminiTimelineDraggable',
   TIMELINE_POSITION: 'geminiTimelinePosition',
   TIMELINE_STARRED_MESSAGES: 'geminiTimelineStarredMessages',
@@ -76,24 +77,29 @@ export const StorageKeys = {
 
   // Sidebar behavior
   GV_SIDEBAR_AUTO_HIDE: 'gvSidebarAutoHide',
+  GV_SIDEBAR_FULL_HIDE: 'gvSidebarFullHide',
 
   // Folder spacing
   GV_FOLDER_SPACING: 'gvFolderSpacing',
   GV_AISTUDIO_FOLDER_SPACING: 'gvAIStudioFolderSpacing',
   GV_FOLDER_TREE_INDENT: 'gvFolderTreeIndent',
 
-  // Snow effect
+  // Snow effect (legacy, kept for backward compat migration)
   GV_SNOW_EFFECT: 'gvSnowEffect',
+
+  // Visual effect (replaces GV_SNOW_EFFECT): 'off' | 'snow' | 'sakura'
+  GV_VISUAL_EFFECT: 'gvVisualEffect',
 
   // Changelog
   CHANGELOG_DISMISSED_VERSION: 'gvChangelogDismissedVersion',
+  CHANGELOG_NOTIFY_MODE: 'gvChangelogNotifyMode',
 
   // Fork nodes
   FORK_NODES: 'gvForkNodes',
   FORK_ENABLED: 'gvForkEnabled',
 
-  // Upsell hider
-  UPSELL_HIDER_ENABLED: 'gvUpsellHiderEnabled',
+  // AI Studio master toggle
+  GV_AISTUDIO_ENABLED: 'gvAIStudioEnabled',
 } as const;
 
 export type StorageKey = (typeof StorageKeys)[keyof typeof StorageKeys];

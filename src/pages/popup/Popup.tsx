@@ -8,10 +8,12 @@ import {
   getAccountIsolationStorageKey,
 } from '@/core/services/AccountIsolationService';
 import { StorageKeys } from '@/core/types/common';
-import { isSafari, shouldShowSafariUpdateReminder } from '@/core/utils/browser';
+import type { ConversationReference, Folder } from '@/core/types/folder';
+import { getModifierKey, isSafari, shouldShowSafariUpdateReminder } from '@/core/utils/browser';
 import { shouldShowUpdateReminderForCurrentVersion } from '@/core/utils/updateReminder';
 import { compareVersions } from '@/core/utils/version';
 import {
+  extractDmgDownloadUrl,
   extractLatestReleaseVersion,
   getCachedLatestVersion,
   getManifestUpdateUrl,
@@ -42,6 +44,165 @@ import {
 import WidthSlider from './components/WidthSlider';
 
 type ScrollMode = 'jump' | 'flow';
+
+const ROOT_CONVERSATIONS_ID = '__root_conversations__';
+
+/**
+ * Build a folder path string like "Parent / Child / Grandchild"
+ */
+function buildFolderPath(folderId: string, foldersById: Map<string, Folder>): string {
+  const parts: string[] = [];
+  let current = foldersById.get(folderId);
+  while (current) {
+    parts.unshift(current.name);
+    current = current.parentId ? foldersById.get(current.parentId) : undefined;
+  }
+  return parts.join(' / ');
+}
+
+/**
+ * Map language code to a human-readable language name for prompt instructions
+ */
+function getLanguageName(lang: string): string {
+  const map: Record<string, string> = {
+    en: 'English',
+    zh: '中文',
+    zh_TW: '繁體中文',
+    ja: '日本語',
+    ko: '한국어',
+    ar: 'العربية',
+    es: 'Español',
+    fr: 'Français',
+    pt: 'Português',
+    ru: 'Русский',
+  };
+  return map[lang] || 'English';
+}
+
+/**
+ * Format all conversations and folder structure as a prompt for AI organization.
+ *
+ * Key design: the output JSON should only contain INCREMENTAL changes —
+ * new folders + new conversation-to-folder assignments for currently unfiled
+ * conversations. Existing folders/conversations must NOT be re-emitted, so
+ * a "Merge" import won't touch the user's carefully curated structure.
+ */
+function formatFolderStructurePrompt(
+  sidebarConversations: Array<{ id: string; title: string; url: string }>,
+  folderData: { folders: Folder[]; folderContents: Record<string, ConversationReference[]> },
+  language: string,
+): string {
+  const lines: string[] = [];
+  const langName = getLanguageName(language);
+
+  // Build folder lookup
+  const foldersById = new Map<string, Folder>();
+  for (const folder of folderData.folders) {
+    foldersById.set(folder.id, folder);
+  }
+
+  // Collect IDs of conversations already in folders
+  const organizedIds = new Set<string>();
+  for (const [folderId, convs] of Object.entries(folderData.folderContents)) {
+    if (folderId === ROOT_CONVERSATIONS_ID) continue;
+    for (const conv of convs) {
+      organizedIds.add(conv.conversationId);
+    }
+  }
+
+  // Section 1: Existing folder names (reference only, no conversations listed)
+  const sortedFolders = [...folderData.folders].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return (a.sortIndex ?? 0) - (b.sortIndex ?? 0);
+  });
+
+  if (sortedFolders.length > 0) {
+    lines.push('## Existing Folders (DO NOT re-create or modify)');
+    lines.push('');
+    for (const folder of sortedFolders) {
+      const path = buildFolderPath(folder.id, foldersById);
+      const convCount = (folderData.folderContents[folder.id] || []).length;
+      lines.push(`- ${path}  (id: ${folder.id}, ${convCount} conversations)`);
+    }
+    lines.push('');
+  }
+
+  // Section 2: Unfiled conversations — these are the ones to organize
+  const unfiledConvs = sidebarConversations.filter((c) => !organizedIds.has(c.id));
+  if (unfiledConvs.length > 0) {
+    lines.push('## Unfiled Conversations (to be organized)');
+    lines.push('');
+    for (const conv of unfiledConvs) {
+      lines.push(`- [${conv.id}] ${conv.title} | ${conv.url}`);
+    }
+    lines.push('');
+  }
+
+  // Section 3: Instructions
+  lines.push('## Instructions');
+  lines.push('');
+  lines.push(`Please respond in **${langName}** (folder names, explanations, etc.).`);
+  lines.push('');
+  lines.push('Organize the **unfiled conversations** above into folders. Rules:');
+  lines.push('');
+  lines.push(
+    '1. **Do NOT re-output existing folders or their conversations.** The result will be merged (not replaced), so anything you output will be added on top of the current structure.',
+  );
+  lines.push(
+    "2. You MAY place an unfiled conversation into an **existing folder** — just reference that folder's id in `folderContents`.",
+  );
+  lines.push(
+    '3. You MAY create **new folders** as needed. Use a short random hex string (8 chars) as the folder id. Name them in ' +
+      langName +
+      '.',
+  );
+  lines.push(
+    "4. New folders can be nested under existing folders by setting `parentId` to the existing folder's id.",
+  );
+  lines.push(
+    '5. Each conversation must keep its original `conversationId` and `url` exactly as shown above.',
+  );
+  lines.push(
+    '6. Only output the **incremental** JSON — new folders + new conversation assignments.',
+  );
+  lines.push('');
+  lines.push('Output format (paste-ready for Gemini Voyager import):');
+  lines.push('');
+  lines.push('```json');
+  lines.push('{');
+  lines.push('  "format": "gemini-voyager.folders.v1",');
+  lines.push(`  "exportedAt": "${new Date().toISOString()}",`);
+  lines.push('  "version": "1.3.3",');
+  lines.push('  "data": {');
+  lines.push('    "folders": [');
+  lines.push('      // ONLY new folders here (omit existing ones)');
+  lines.push('      {');
+  lines.push('        "id": "<8-char-hex>",');
+  lines.push(`        "name": "<folder name in ${langName}>",`);
+  lines.push('        "parentId": null,');
+  lines.push('        "isExpanded": true,');
+  lines.push('        "createdAt": <unix-ms>,');
+  lines.push('        "updatedAt": <unix-ms>');
+  lines.push('      }');
+  lines.push('    ],');
+  lines.push('    "folderContents": {');
+  lines.push('      // Can reference EXISTING folder ids or NEW folder ids');
+  lines.push('      "<folder-id>": [');
+  lines.push('        {');
+  lines.push('          "conversationId": "<id from unfiled list>",');
+  lines.push('          "title": "<title>",');
+  lines.push('          "url": "<url>",');
+  lines.push('          "addedAt": <unix-ms>');
+  lines.push('        }');
+  lines.push('      ]');
+  lines.push('    }');
+  lines.push('  }');
+  lines.push('}');
+  lines.push('```');
+
+  return lines.join('\n');
+}
 
 const LEGACY_BASELINE_PX = 1200; // used to migrate old px widths to %
 const pxFromPercent = (percent: number) => (percent / 100) * LEGACY_BASELINE_PX;
@@ -101,6 +262,7 @@ const normalizeSidebarPx = (value: number) => {
 
 const LATEST_VERSION_CACHE_KEY = 'gvLatestVersionCache';
 const LATEST_VERSION_MAX_AGE = 1000 * 60 * 60 * 6; // 6 hours
+const SAFARI_DMG_RETRY_AGE = 1000 * 60 * 30; // 30 min — re-check for DMG if missing
 
 const normalizeVersionString = (version?: string | null): string | null => {
   if (!version) return null;
@@ -133,12 +295,13 @@ interface SettingsUpdate {
   quoteReplyEnabled?: boolean;
   ctrlEnterSendEnabled?: boolean;
   sidebarAutoHideEnabled?: boolean;
-  snowEffectEnabled?: boolean;
+  sidebarFullHideEnabled?: boolean;
+  visualEffect?: 'off' | 'snow' | 'sakura' | 'rain';
   preventAutoScrollEnabled?: boolean;
   forkEnabled?: boolean;
-  upsellHiderEnabled?: boolean;
   accountIsolationEnabled?: boolean;
   accountIsolationPlatform?: AccountPlatform;
+  aiStudioEnabled?: boolean;
 }
 
 export default function Popup() {
@@ -158,6 +321,7 @@ export default function Popup() {
   );
   const [extVersion, setExtVersion] = useState<string | null>(null);
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
+  const [safariDmgUrl, setSafariDmgUrl] = useState<string | null>(null);
   const [watermarkRemoverEnabled, setWatermarkRemoverEnabled] = useState<boolean>(true);
   const [hidePromptManager, setHidePromptManager] = useState<boolean>(false);
   const [inputCollapseEnabled, setInputCollapseEnabled] = useState<boolean>(false);
@@ -167,15 +331,22 @@ export default function Popup() {
   const [quoteReplyEnabled, setQuoteReplyEnabled] = useState<boolean>(true);
   const [ctrlEnterSendEnabled, setCtrlEnterSendEnabled] = useState<boolean>(false);
   const [sidebarAutoHideEnabled, setSidebarAutoHideEnabled] = useState<boolean>(false);
-  const [snowEffectEnabled, setSnowEffectEnabled] = useState<boolean>(false);
+  const [sidebarFullHideEnabled, setSidebarFullHideEnabled] = useState<boolean>(false);
+  const [visualEffect, setVisualEffect] = useState<'off' | 'snow' | 'sakura' | 'rain'>('off');
   const [preventAutoScrollEnabled, setPreventAutoScrollEnabled] = useState<boolean>(false);
   const [forkEnabled, setForkEnabled] = useState<boolean>(false);
-  const [upsellHiderEnabled, setUpsellHiderEnabled] = useState<boolean>(true);
+  const [chatWidthEnabled, setChatWidthEnabled] = useState<boolean>(false);
+  const [editInputWidthEnabled, setEditInputWidthEnabled] = useState<boolean>(false);
+  const [sidebarWidthEnabled, setSidebarWidthEnabled] = useState<boolean>(false);
   const [accountIsolationEnabledGemini, setAccountIsolationEnabledGemini] =
     useState<boolean>(false);
   const [accountIsolationEnabledAIStudio, setAccountIsolationEnabledAIStudio] =
     useState<boolean>(false);
+  const [aiStudioEnabled, setAiStudioEnabled] = useState<boolean>(true);
   const [activeAccountPlatform, setActiveAccountPlatform] = useState<AccountPlatform>('gemini');
+  const [aiStructureCopyStatus, setAiStructureCopyStatus] = useState<
+    'idle' | 'loading' | 'copied' | 'error'
+  >('idle');
   const isAIStudio = activeAccountPlatform === 'aistudio';
   const currentIsolationPlatformLabel = isAIStudio ? t('platformAIStudio') : t('platformGemini');
 
@@ -251,23 +422,63 @@ export default function Popup() {
         payload.gvCtrlEnterSend = settings.ctrlEnterSendEnabled;
       if (typeof settings.sidebarAutoHideEnabled === 'boolean')
         payload.gvSidebarAutoHide = settings.sidebarAutoHideEnabled;
-      if (typeof settings.snowEffectEnabled === 'boolean')
-        payload.gvSnowEffect = settings.snowEffectEnabled;
+      if (typeof settings.sidebarFullHideEnabled === 'boolean')
+        payload.gvSidebarFullHide = settings.sidebarFullHideEnabled;
+      if (settings.visualEffect) {
+        payload.gvVisualEffect = settings.visualEffect;
+        // Clear legacy key
+        payload.gvSnowEffect = false;
+      }
       if (typeof settings.preventAutoScrollEnabled === 'boolean')
         payload.gvPreventAutoScrollEnabled = settings.preventAutoScrollEnabled;
       if (typeof settings.forkEnabled === 'boolean')
         payload[StorageKeys.FORK_ENABLED] = settings.forkEnabled;
-      if (typeof settings.upsellHiderEnabled === 'boolean')
-        payload[StorageKeys.UPSELL_HIDER_ENABLED] = settings.upsellHiderEnabled;
       if (typeof settings.accountIsolationEnabled === 'boolean') {
         const isolationPlatform = settings.accountIsolationPlatform ?? activeAccountPlatform;
         payload[getAccountIsolationStorageKey(isolationPlatform)] =
           settings.accountIsolationEnabled;
       }
+      if (typeof settings.aiStudioEnabled === 'boolean')
+        payload[StorageKeys.GV_AISTUDIO_ENABLED] = settings.aiStudioEnabled;
       void setSyncStorage(payload);
     },
     [activeAccountPlatform, setSyncStorage],
   );
+
+  // Copy folder structure for AI organization
+  const handleCopyFolderStructureForAI = useCallback(async () => {
+    setAiStructureCopyStatus('loading');
+    try {
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+      const tabId = tabs[0]?.id;
+      if (!tabId) {
+        setAiStructureCopyStatus('error');
+        return;
+      }
+
+      const response = (await browser.tabs.sendMessage(tabId, {
+        type: 'gv.folders.getStructureForAI',
+      })) as {
+        ok: boolean;
+        sidebarConversations: Array<{ id: string; title: string; url: string }>;
+        folderData: { folders: Folder[]; folderContents: Record<string, ConversationReference[]> };
+      };
+
+      if (!response?.ok) {
+        setAiStructureCopyStatus('error');
+        return;
+      }
+
+      const { sidebarConversations, folderData } = response;
+      const prompt = formatFolderStructurePrompt(sidebarConversations, folderData, language);
+      await navigator.clipboard.writeText(prompt);
+      setAiStructureCopyStatus('copied');
+      setTimeout(() => setAiStructureCopyStatus('idle'), 2000);
+    } catch {
+      setAiStructureCopyStatus('error');
+      setTimeout(() => setAiStructureCopyStatus('idle'), 2000);
+    }
+  }, [language]);
 
   // Width adjuster for chat width
   const chatWidthAdjuster = useWidthAdjuster({
@@ -425,11 +636,34 @@ export default function Popup() {
         const cache = await browser.storage.local.get(LATEST_VERSION_CACHE_KEY);
         const now = Date.now();
 
-        let latest = getCachedLatestVersion(
-          cache?.[LATEST_VERSION_CACHE_KEY],
-          now,
-          LATEST_VERSION_MAX_AGE,
-        );
+        const cachedEntry = cache?.[LATEST_VERSION_CACHE_KEY];
+        let latest = getCachedLatestVersion(cachedEntry, now, LATEST_VERSION_MAX_AGE);
+        let dmgUrl: string | null = null;
+
+        if (latest && isSafari()) {
+          // Try to read cached DMG URL
+          if (
+            typeof cachedEntry === 'object' &&
+            cachedEntry !== null &&
+            'dmgUrl' in cachedEntry &&
+            typeof (cachedEntry as Record<string, unknown>).dmgUrl === 'string'
+          ) {
+            dmgUrl = (cachedEntry as Record<string, unknown>).dmgUrl as string;
+          }
+          // If DMG URL was not cached, re-fetch — but respect a 30 min cooldown
+          // to avoid hitting GitHub API rate limits
+          if (
+            !dmgUrl &&
+            typeof cachedEntry === 'object' &&
+            cachedEntry !== null &&
+            'fetchedAt' in cachedEntry &&
+            typeof (cachedEntry as Record<string, unknown>).fetchedAt === 'number' &&
+            now - ((cachedEntry as Record<string, unknown>).fetchedAt as number) >=
+              SAFARI_DMG_RETRY_AGE
+          ) {
+            latest = null;
+          }
+        }
 
         if (!latest) {
           const resp = await fetch(
@@ -448,8 +682,16 @@ export default function Popup() {
 
           if (candidate) {
             latest = candidate;
+            const isSafariFetch = isSafari();
+            if (isSafariFetch) {
+              dmgUrl = extractDmgDownloadUrl(data);
+            }
             await browser.storage.local.set({
-              [LATEST_VERSION_CACHE_KEY]: { version: candidate, fetchedAt: now },
+              [LATEST_VERSION_CACHE_KEY]: {
+                version: candidate,
+                fetchedAt: now,
+                ...(isSafariFetch ? { dmgUrl } : {}),
+              },
             });
           }
         }
@@ -457,6 +699,9 @@ export default function Popup() {
         if (cancelled || !latest) return;
 
         setLatestVersion(latest);
+        if (isSafari()) {
+          setSafariDmgUrl(dmgUrl);
+        }
       } catch (error) {
         if (!cancelled) {
           console.warn('[Gemini Voyager] Failed to check latest version:', error);
@@ -492,13 +737,19 @@ export default function Popup() {
           gvQuoteReplyEnabled: true,
           gvCtrlEnterSend: false,
           gvSidebarAutoHide: false,
+          gvSidebarFullHide: false,
           gvSnowEffect: false,
           gvPreventAutoScrollEnabled: false,
           [StorageKeys.FORK_ENABLED]: false,
-          [StorageKeys.UPSELL_HIDER_ENABLED]: true,
           [StorageKeys.GV_ACCOUNT_ISOLATION_ENABLED]: false,
           [StorageKeys.GV_ACCOUNT_ISOLATION_ENABLED_GEMINI]: null,
           [StorageKeys.GV_ACCOUNT_ISOLATION_ENABLED_AISTUDIO]: null,
+          [StorageKeys.GV_AISTUDIO_ENABLED]: true,
+          gvChatWidthEnabled: false,
+          gvEditInputWidthEnabled: false,
+          gvSidebarWidthEnabled: false,
+          geminiChatWidth: CHAT_PERCENT.defaultValue,
+          geminiEditInputWidth: EDIT_PERCENT.defaultValue,
         },
         (res) => {
           const m = res?.geminiTimelineScrollMode as ScrollMode;
@@ -524,10 +775,39 @@ export default function Popup() {
           setQuoteReplyEnabled(res?.gvQuoteReplyEnabled !== false);
           setCtrlEnterSendEnabled(res?.gvCtrlEnterSend === true);
           setSidebarAutoHideEnabled(res?.gvSidebarAutoHide === true);
-          setSnowEffectEnabled(res?.gvSnowEffect === true);
+          setSidebarFullHideEnabled(res?.gvSidebarFullHide === true);
+          // Resolve visual effect: new key takes precedence over legacy boolean
+          const storedVisualEffect = res?.gvVisualEffect;
+          if (
+            storedVisualEffect === 'snow' ||
+            storedVisualEffect === 'sakura' ||
+            storedVisualEffect === 'rain'
+          ) {
+            setVisualEffect(storedVisualEffect);
+          } else if (res?.gvSnowEffect === true) {
+            setVisualEffect('snow');
+          } else {
+            setVisualEffect('off');
+          }
           setPreventAutoScrollEnabled(res?.gvPreventAutoScrollEnabled === true);
           setForkEnabled(res?.[StorageKeys.FORK_ENABLED] === true);
-          setUpsellHiderEnabled(res?.[StorageKeys.UPSELL_HIDER_ENABLED] === true);
+          setAiStudioEnabled(res?.[StorageKeys.GV_AISTUDIO_ENABLED] !== false);
+
+          // Width enabled flags — auto-enable if user previously customized the width
+          setChatWidthEnabled(
+            res?.gvChatWidthEnabled === true ||
+              (res?.gvChatWidthEnabled === false &&
+                typeof res?.geminiChatWidth === 'number' &&
+                res.geminiChatWidth !== CHAT_PERCENT.defaultValue),
+          );
+          setEditInputWidthEnabled(
+            res?.gvEditInputWidthEnabled === true ||
+              (res?.gvEditInputWidthEnabled === false &&
+                typeof res?.geminiEditInputWidth === 'number' &&
+                res.geminiEditInputWidth !== EDIT_PERCENT.defaultValue),
+          );
+          setSidebarWidthEnabled(res?.gvSidebarWidthEnabled === true);
+
           const legacyIsolationEnabled = res?.[StorageKeys.GV_ACCOUNT_ISOLATION_ENABLED] === true;
           const geminiIsolationRaw = res?.[StorageKeys.GV_ACCOUNT_ISOLATION_ENABLED_GEMINI];
           const aiStudioIsolationRaw = res?.[StorageKeys.GV_ACCOUNT_ISOLATION_ENABLED_AISTUDIO];
@@ -783,10 +1063,8 @@ export default function Popup() {
   return (
     <div className="bg-background text-foreground w-[360px]">
       {/* Header */}
-      <div className="from-primary/10 via-accent/5 border-border/50 flex items-center justify-between border-b bg-linear-to-br to-transparent px-5 py-4 backdrop-blur-sm">
-        <h1 className="from-primary to-primary/70 bg-linear-to-r bg-clip-text text-xl font-bold text-transparent">
-          {t('extName')}
-        </h1>
+      <div className="border-border/50 flex items-center justify-between border-b px-5 py-5">
+        <h1 className="text-primary text-2xl font-extrabold tracking-tight">{t('extName')}</h1>
         <div className="flex items-center gap-1">
           <DarkModeToggle />
           <LanguageSwitcher />
@@ -815,15 +1093,58 @@ export default function Popup() {
                   {t('latestVersionLabel')}: v{normalizedLatestVersion}
                 </p>
               </div>
-              <a
-                href={latestReleaseUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-900 transition-colors hover:bg-amber-200"
-              >
-                {t('updateNow')}
-              </a>
+              {isSafariBrowser ? (
+                safariDmgUrl ? (
+                  <a
+                    href={safariDmgUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-900 transition-colors hover:bg-amber-200"
+                  >
+                    {t('updateNow')}
+                  </a>
+                ) : (
+                  <span className="shrink-0 text-xs leading-tight text-amber-700">
+                    {t('safariUpdateNotSynced')}
+                  </span>
+                )
+              ) : (
+                <a
+                  href={latestReleaseUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-900 transition-colors hover:bg-amber-200"
+                >
+                  {t('updateNow')}
+                </a>
+              )}
             </div>
+          </Card>
+        )}
+        {/* AI Studio master toggle - only shown when on AI Studio */}
+        {isAIStudio && (
+          <Card className="border-primary/20 p-4 transition-all hover:shadow-md">
+            <CardContent className="p-0">
+              <div className="group flex items-center justify-between">
+                <div className="flex-1">
+                  <Label
+                    htmlFor="aistudio-enabled"
+                    className="group-hover:text-primary cursor-pointer text-sm font-medium transition-colors"
+                  >
+                    {t('enableOnAIStudio')}
+                  </Label>
+                  <p className="text-muted-foreground mt-1 text-xs">{t('enableOnAIStudioHint')}</p>
+                </div>
+                <Switch
+                  id="aistudio-enabled"
+                  checked={aiStudioEnabled}
+                  onChange={(e) => {
+                    setAiStudioEnabled(e.target.checked);
+                    apply({ aiStudioEnabled: e.target.checked });
+                  }}
+                />
+              </div>
+            </CardContent>
           </Card>
         )}
         {/* Cloud Sync - First priority - Hidden on Safari due to API limitations */}
@@ -831,19 +1152,19 @@ export default function Popup() {
         {/* Context Sync */}
         <ContextSyncSettings />
         {/* Timeline Options */}
-        <Card className="p-4 transition-shadow hover:shadow-lg">
-          <CardTitle className="mb-4 text-xs uppercase">{t('timelineOptions')}</CardTitle>
+        <Card className="p-4 transition-all hover:shadow-md">
+          <CardTitle className="mb-4">{t('timelineOptions')}</CardTitle>
           <CardContent className="space-y-4 p-0">
             {/* Scroll Mode */}
             <div>
               <Label className="mb-2 block text-sm font-medium">{t('scrollMode')}</Label>
-              <div className="bg-secondary/50 relative grid grid-cols-2 gap-1 rounded-lg p-1">
+              <div className="bg-secondary/60 relative grid grid-cols-2 gap-1 rounded-xl p-1">
                 <div
-                  className="bg-primary pointer-events-none absolute top-1 bottom-1 w-[calc(50%-6px)] rounded-md shadow-md transition-all duration-300 ease-out"
+                  className="bg-primary pointer-events-none absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg shadow-sm transition-all duration-300 ease-out"
                   style={{ left: mode === 'flow' ? '4px' : 'calc(50% + 2px)' }}
                 />
                 <button
-                  className={`relative z-10 rounded-md px-3 py-2 text-sm font-semibold transition-all duration-200 ${
+                  className={`relative z-10 rounded-lg px-3 py-2 text-sm font-bold transition-all duration-200 ${
                     mode === 'flow'
                       ? 'text-primary-foreground'
                       : 'text-muted-foreground hover:text-foreground'
@@ -856,7 +1177,7 @@ export default function Popup() {
                   {t('flow')}
                 </button>
                 <button
-                  className={`relative z-10 rounded-md px-3 py-2 text-sm font-semibold transition-all duration-200 ${
+                  className={`relative z-10 rounded-lg px-3 py-2 text-sm font-bold transition-all duration-200 ${
                     mode === 'jump'
                       ? 'text-primary-foreground'
                       : 'text-muted-foreground hover:text-foreground'
@@ -987,8 +1308,8 @@ export default function Popup() {
           </CardContent>
         </Card>
         {/* Folder Options */}
-        <Card className="p-4 transition-shadow hover:shadow-lg">
-          <CardTitle className="mb-4 text-xs uppercase">{t('folderOptions')}</CardTitle>
+        <Card className="p-4 transition-all hover:shadow-md">
+          <CardTitle className="mb-4">{t('folderOptions')}</CardTitle>
           <CardContent className="space-y-4 p-0">
             <div className="group flex items-center justify-between">
               <Label
@@ -1093,6 +1414,34 @@ export default function Popup() {
                 }}
               />
             </div>
+            {/* Copy folder structure for AI organization */}
+            <div className="border-border/50 border-t pt-3">
+              <Button
+                variant="outline"
+                className="w-full text-sm"
+                onClick={handleCopyFolderStructureForAI}
+                disabled={aiStructureCopyStatus === 'loading'}
+              >
+                <span className="inline-flex items-center justify-center gap-1.5">
+                  <span
+                    className="material-symbols-outlined translate-y-px text-[16px] leading-none"
+                    style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+                  >
+                    {aiStructureCopyStatus === 'copied' ? 'check' : 'content_copy'}
+                  </span>
+                  <span className="leading-5">
+                    {aiStructureCopyStatus === 'copied'
+                      ? t('aiOrgCopied')
+                      : aiStructureCopyStatus === 'error'
+                        ? t('aiOrgError')
+                        : t('aiOrgCopyButton')}
+                  </span>
+                </span>
+              </Button>
+              <p className="text-muted-foreground mt-1.5 text-center text-[11px] leading-tight">
+                {t('aiOrgCopyHint')}
+              </p>
+            </div>
           </CardContent>
         </Card>
         {/* Folder Spacing */}
@@ -1133,6 +1482,13 @@ export default function Popup() {
           wideLabel={t('chatWidthWide')}
           onChange={chatWidthAdjuster.handleChange}
           onChangeComplete={chatWidthAdjuster.handleChangeComplete}
+          enabled={chatWidthEnabled}
+          onToggle={(v) => {
+            setChatWidthEnabled(v);
+            try {
+              chrome.storage?.sync?.set({ gvChatWidthEnabled: v });
+            } catch {}
+          }}
         />
         {/* Edit Input Width */}
         <WidthSlider
@@ -1145,6 +1501,13 @@ export default function Popup() {
           wideLabel={t('editInputWidthWide')}
           onChange={editInputWidthAdjuster.handleChange}
           onChangeComplete={editInputWidthAdjuster.handleChangeComplete}
+          enabled={editInputWidthEnabled}
+          onToggle={(v) => {
+            setEditInputWidthEnabled(v);
+            try {
+              chrome.storage?.sync?.set({ gvEditInputWidthEnabled: v });
+            } catch {}
+          }}
         />
 
         {/* Sidebar Width */}
@@ -1159,12 +1522,19 @@ export default function Popup() {
           valueFormatter={(v) => `${v}px`}
           onChange={sidebarWidthAdjuster.handleChange}
           onChangeComplete={sidebarWidthAdjuster.handleChangeComplete}
+          enabled={sidebarWidthEnabled}
+          onToggle={(v) => {
+            setSidebarWidthEnabled(v);
+            try {
+              chrome.storage?.sync?.set({ gvSidebarWidthEnabled: v });
+            } catch {}
+          }}
         />
 
-        {/* Sidebar Auto-Hide - Gemini only */}
+        {/* Sidebar Auto-Hide & Full-Hide - Gemini only */}
         {!isAIStudio && (
-          <Card className="p-4 transition-shadow hover:shadow-lg">
-            <CardContent className="p-0">
+          <Card className="p-4 transition-all hover:shadow-md">
+            <CardContent className="space-y-3 p-0">
               <div className="group flex items-center justify-between">
                 <div className="flex-1">
                   <Label
@@ -1184,30 +1554,22 @@ export default function Popup() {
                   }}
                 />
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Snow Effect - Gemini only */}
-        {!isAIStudio && (
-          <Card className="p-4 transition-shadow hover:shadow-lg">
-            <CardContent className="p-0">
               <div className="group flex items-center justify-between">
                 <div className="flex-1">
                   <Label
-                    htmlFor="snow-effect"
+                    htmlFor="sidebar-full-hide"
                     className="group-hover:text-primary cursor-pointer text-sm font-medium transition-colors"
                   >
-                    {t('snowEffect')}
+                    {t('sidebarFullHide')}
                   </Label>
-                  <p className="text-muted-foreground mt-1 text-xs">{t('snowEffectHint')}</p>
+                  <p className="text-muted-foreground mt-1 text-xs">{t('sidebarFullHideHint')}</p>
                 </div>
                 <Switch
-                  id="snow-effect"
-                  checked={snowEffectEnabled}
+                  id="sidebar-full-hide"
+                  checked={sidebarFullHideEnabled}
                   onChange={(e) => {
-                    setSnowEffectEnabled(e.target.checked);
-                    apply({ snowEffectEnabled: e.target.checked });
+                    setSidebarFullHideEnabled(e.target.checked);
+                    apply({ sidebarFullHideEnabled: e.target.checked });
                   }}
                 />
               </div>
@@ -1215,36 +1577,136 @@ export default function Popup() {
           </Card>
         )}
 
-        {/* Upsell Hider - Gemini only */}
+        {/* Visual Effect - Gemini only */}
         {!isAIStudio && (
-          <Card className="p-4 transition-shadow hover:shadow-lg">
+          <Card className="p-4 transition-all hover:shadow-md">
             <CardContent className="p-0">
-              <div className="group flex items-center justify-between">
-                <div className="flex-1">
-                  <Label
-                    htmlFor="upsell-hider"
-                    className="group-hover:text-primary cursor-pointer text-sm font-medium transition-colors"
+              <div className="flex-1">
+                <Label className="text-sm font-medium">{t('visualEffect')}</Label>
+                <p className="text-muted-foreground mt-1 text-xs">{t('visualEffectHint')}</p>
+              </div>
+              <div className="bg-secondary/60 mt-3 flex items-center gap-0.5 rounded-full p-1">
+                {(
+                  [
+                    {
+                      value: 'off' as const,
+                      label: t('visualEffectOff'),
+                      icon: (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                      ),
+                    },
+                    {
+                      value: 'snow' as const,
+                      label: t('visualEffectSnow'),
+                      icon: (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="12" y1="2" x2="12" y2="22" />
+                          <line x1="2" y1="12" x2="22" y2="12" />
+                          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                          <line x1="19.07" y1="4.93" x2="4.93" y2="19.07" />
+                          <line x1="12" y1="2" x2="14.5" y2="4.5" />
+                          <line x1="12" y1="2" x2="9.5" y2="4.5" />
+                          <line x1="12" y1="22" x2="14.5" y2="19.5" />
+                          <line x1="12" y1="22" x2="9.5" y2="19.5" />
+                          <line x1="2" y1="12" x2="4.5" y2="9.5" />
+                          <line x1="2" y1="12" x2="4.5" y2="14.5" />
+                          <line x1="22" y1="12" x2="19.5" y2="9.5" />
+                          <line x1="22" y1="12" x2="19.5" y2="14.5" />
+                        </svg>
+                      ),
+                    },
+                    {
+                      value: 'sakura' as const,
+                      label: t('visualEffectSakura'),
+                      icon: (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                          <g transform="translate(12,12)">
+                            {[0, 72, 144, 216, 288].map((deg) => (
+                              <ellipse
+                                key={deg}
+                                cx="0"
+                                cy="-6"
+                                rx="2.8"
+                                ry="5.5"
+                                transform={`rotate(${deg})`}
+                                opacity="0.85"
+                              />
+                            ))}
+                            <circle cx="0" cy="0" r="2" opacity="0.6" />
+                          </g>
+                        </svg>
+                      ),
+                    },
+                    {
+                      value: 'rain' as const,
+                      label: t('visualEffectRain'),
+                      icon: (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        >
+                          <line x1="8" y1="3" x2="6.5" y2="10" />
+                          <line x1="14" y1="2" x2="12.5" y2="9" />
+                          <line x1="20" y1="4" x2="18.5" y2="11" />
+                          <line x1="5" y1="12" x2="3.5" y2="19" />
+                          <line x1="11" y1="11" x2="9.5" y2="18" />
+                          <line x1="17" y1="13" x2="15.5" y2="20" />
+                        </svg>
+                      ),
+                    },
+                  ] as const
+                ).map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setVisualEffect(option.value);
+                      apply({ visualEffect: option.value });
+                    }}
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-1.5 text-xs font-bold transition-all duration-200 ${
+                      visualEffect === option.value
+                        ? 'bg-background text-foreground shadow-md'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
                   >
-                    {t('hideUpsell')}
-                  </Label>
-                  <p className="text-muted-foreground mt-1 text-xs">{t('hideUpsellHint')}</p>
-                </div>
-                <Switch
-                  id="upsell-hider"
-                  checked={upsellHiderEnabled}
-                  onChange={(e) => {
-                    setUpsellHiderEnabled(e.target.checked);
-                    apply({ upsellHiderEnabled: e.target.checked });
-                  }}
-                />
+                    {option.icon}
+                    <span>{option.label}</span>
+                  </button>
+                ))}
               </div>
             </CardContent>
           </Card>
         )}
 
         {/* Formula Copy Options */}
-        <Card className="p-4 transition-shadow hover:shadow-lg">
-          <CardTitle className="mb-4 text-xs uppercase">{t('formulaCopyFormat')}</CardTitle>
+        <Card className="p-4 transition-all hover:shadow-md">
+          <CardTitle className="mb-4">{t('formulaCopyFormat')}</CardTitle>
           <CardContent className="space-y-3 p-0">
             <p className="text-muted-foreground mb-3 text-xs">{t('formulaCopyFormatHint')}</p>
             <div className="space-y-2">
@@ -1289,8 +1751,8 @@ export default function Popup() {
         <KeyboardShortcutSettings />
 
         {/* Input Collapse Options */}
-        <Card className="p-4 transition-shadow hover:shadow-lg">
-          <CardTitle className="mb-4 text-xs uppercase">{t('inputCollapseOptions')}</CardTitle>
+        <Card className="p-4 transition-all hover:shadow-md">
+          <CardTitle className="mb-4">{t('inputCollapseOptions')}</CardTitle>
           <CardContent className="space-y-4 p-0">
             <div className="group flex items-center justify-between">
               <div className="flex-1">
@@ -1300,7 +1762,12 @@ export default function Popup() {
                 >
                   {t('enableInputCollapse')}
                 </Label>
-                <p className="text-muted-foreground mt-1 text-xs">{t('enableInputCollapseHint')}</p>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  {t('enableInputCollapseHint')}{' '}
+                  <span className="text-muted-foreground/70">
+                    ({t('inputCollapseShortcutHint').replace('{modifier}', getModifierKey())})
+                  </span>
+                </p>
               </div>
               <Switch
                 id="input-collapse-enabled"
@@ -1341,9 +1808,11 @@ export default function Popup() {
                   htmlFor="ctrl-enter-send"
                   className="group-hover:text-primary cursor-pointer text-sm font-medium transition-colors"
                 >
-                  {t('ctrlEnterSend')}
+                  {t('ctrlEnterSend').replace('{modifier}', getModifierKey())}
                 </Label>
-                <p className="text-muted-foreground mt-1 text-xs">{t('ctrlEnterSendHint')}</p>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  {t('ctrlEnterSendHint').replace('{modifier}', getModifierKey())}
+                </p>
               </div>
               <Switch
                 id="ctrl-enter-send"
@@ -1358,8 +1827,8 @@ export default function Popup() {
         </Card>
 
         {/* Prompt Manager Options */}
-        <Card className="p-4 transition-shadow hover:shadow-lg">
-          <CardTitle className="mb-4 text-xs uppercase">{t('promptManagerOptions')}</CardTitle>
+        <Card className="p-4 transition-all hover:shadow-md">
+          <CardTitle className="mb-4">{t('promptManagerOptions')}</CardTitle>
           <CardContent className="space-y-3 p-0">
             {/* Hide Prompt Manager Toggle */}
             <div className="group flex items-center justify-between">
@@ -1503,8 +1972,8 @@ export default function Popup() {
         </Card>
 
         {/* General Options */}
-        <Card className="p-4 transition-shadow hover:shadow-lg">
-          <CardTitle className="mb-4 text-xs uppercase">{t('generalOptions')}</CardTitle>
+        <Card className="p-4 transition-all hover:shadow-md">
+          <CardTitle className="mb-4">{t('generalOptions')}</CardTitle>
           <CardContent className="space-y-4 p-0">
             <div className="group flex items-center justify-between">
               <div className="flex-1">
@@ -1572,8 +2041,8 @@ export default function Popup() {
 
         {/* NanoBanana Options - Hidden on Safari due to fetch interceptor limitations */}
         {!isSafariBrowser && (
-          <Card className="p-4 transition-shadow hover:shadow-lg">
-            <CardTitle className="mb-4 text-xs uppercase">{t('nanobananaOptions')}</CardTitle>
+          <Card className="p-4 transition-all hover:shadow-md">
+            <CardTitle className="mb-4">{t('nanobananaOptions')}</CardTitle>
             <CardContent className="space-y-4 p-0">
               <div className="group flex items-center justify-between">
                 <div className="flex-1">
@@ -1602,7 +2071,7 @@ export default function Popup() {
       </div>
 
       {/* Footer */}
-      <div className="from-secondary/30 via-accent/10 border-border/50 flex flex-col gap-3 border-t bg-linear-to-br to-transparent px-5 py-4 backdrop-blur-sm">
+      <div className="border-border/50 flex flex-col gap-3 border-t px-5 py-4">
         <div className="flex w-full items-center justify-between">
           <div className="text-muted-foreground flex items-center gap-2 text-xs">
             <span className="text-foreground/80 font-semibold">{t('extensionVersion')}</span>
@@ -1645,7 +2114,7 @@ export default function Popup() {
           href="https://github.com/Nagi-ovo/gemini-voyager"
           target="_blank"
           rel="noreferrer"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-primary/25 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg active:scale-[0.97]"
           title={t('starProject')}
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">

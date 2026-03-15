@@ -156,18 +156,42 @@ function removeStyles(): void {
   }
 }
 
+const ENABLED_KEY = 'gvEditInputWidthEnabled';
+
 /**
  * Initializes and starts the edit input width adjuster
  */
 export function startEditInputWidthAdjuster(): void {
   let currentWidthPercent = DEFAULT_PERCENT;
+  let enabled = false;
 
-  // Load initial width from storage
-  chrome.storage?.sync?.get({ geminiEditInputWidth: DEFAULT_PERCENT }, (res) => {
+  // Load initial state — request keys without defaults so we can distinguish
+  // "key never existed" (upgrade) from "explicitly set to false"
+  chrome.storage?.sync?.get(['geminiEditInputWidth', ENABLED_KEY], (res) => {
     const storedWidth = res?.geminiEditInputWidth;
-    const normalized = normalizePercent(storedWidth, DEFAULT_PERCENT);
+    const normalized = normalizePercent(
+      typeof storedWidth === 'number' ? storedWidth : DEFAULT_PERCENT,
+      DEFAULT_PERCENT,
+    );
     currentWidthPercent = normalized;
-    applyWidth(currentWidthPercent);
+
+    const enabledRaw = res?.[ENABLED_KEY];
+    if (enabledRaw === undefined) {
+      enabled =
+        typeof storedWidth === 'number' &&
+        normalizePercent(storedWidth, DEFAULT_PERCENT) !== DEFAULT_PERCENT;
+      if (enabled) {
+        try {
+          chrome.storage?.sync?.set({ [ENABLED_KEY]: true });
+        } catch {}
+      }
+    } else {
+      enabled = enabledRaw === true;
+    }
+
+    if (enabled) {
+      applyWidth(currentWidthPercent);
+    }
 
     if (typeof storedWidth === 'number' && storedWidth !== normalized) {
       try {
@@ -180,12 +204,25 @@ export function startEditInputWidthAdjuster(): void {
 
   // Listen for changes from storage (when user adjusts in popup)
   chrome.storage?.onChanged?.addListener((changes, area) => {
-    if (area === 'sync' && changes.geminiEditInputWidth) {
+    if (area !== 'sync') return;
+
+    if (changes[ENABLED_KEY]) {
+      enabled = changes[ENABLED_KEY].newValue === true;
+      if (enabled) {
+        applyWidth(currentWidthPercent);
+      } else {
+        removeStyles();
+      }
+    }
+
+    if (changes.geminiEditInputWidth) {
       const newWidth = changes.geminiEditInputWidth.newValue;
       if (typeof newWidth === 'number') {
         const normalized = normalizePercent(newWidth, DEFAULT_PERCENT);
         currentWidthPercent = normalized;
-        applyWidth(currentWidthPercent);
+        if (enabled) {
+          applyWidth(currentWidthPercent);
+        }
 
         if (normalized !== newWidth) {
           try {
@@ -206,8 +243,9 @@ export function startEditInputWidthAdjuster(): void {
       clearTimeout(debounceTimer);
     }
     debounceTimer = window.setTimeout(() => {
-      // Use cached width instead of reading from storage
-      applyWidth(currentWidthPercent);
+      if (enabled) {
+        applyWidth(currentWidthPercent);
+      }
       debounceTimer = null;
     }, 200);
   });

@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: 'Gemini Voyager'
+  name: 'Voyager'
   text: '终于，它完整了。'
   tagline: '思维有形，万物归位。'
   image:
     src: /logo.png
-    alt: Gemini Voyager Logo
+    alt: Voyager Logo
   actions:
     - theme: brand
       text: 下载安装
@@ -18,7 +18,7 @@ hero:
 
 teaser:
   title: '重新定义交互。'
-  description: '我们不造扩展，我们重塑思考。<br>用 Gemini Voyager，不再是人适应界面，而是界面顺应心流。'
+  description: '我们不造扩展，我们重塑思考。<br>用 Voyager，不再是人适应界面，而是界面顺应心流。'
   image: '/assets/teaser.png'
   features:
     - title: '时间轴'
@@ -47,6 +47,9 @@ features:
   - icon: 💾
     title: 对话导出
     details: 数据归你。多种格式一键存档，知识不再流失。
+  - icon: 🌦️
+    title: 视觉特效
+    details: 页面也有情绪。可在弹窗中切换飘雪、下雨与樱花花瓣效果。
   - icon: 🍌
     title: NanoBanana 水印去除
     details: 无损去水印。让 AI 生成的瞬间回归纯净。
@@ -65,10 +68,22 @@ features:
   - icon: 🗑️
     title: 批量删除对话
     details: 一键清理。选中多个对话，批量删除，告别繁琐。
-  # - icon: ⚡️
-  #   title: 默认模型
-  #   details: 拒绝重复劳动。新建对话自动切换至你最爱的模型。
+  - icon: ☁️
+    title: 云同步
+    details: 永远在线。文件夹与提示词库同步至 Google Drive，多设备无缝衔接。
+  - icon: ⚡️
+    title: 默认模型
+    details: 拒绝重复劳动。新建对话自动切换至你最爱的模型。
+  - icon: 🔬
+    title: Deep Research
+    details: 拆开黑箱。一键提取 Deep Research 的思考过程与研究链接。
 ---
+
+<div class="vp-doc" style="margin: 2rem auto 0; max-width: 780px; padding: 0 16px;">
+  <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.6); border-radius: 8px; padding: 12px 16px;">
+    <strong>⚠️ 改名公告</strong>：由于商标版权问题，本插件已正式改名为 <strong>Voyager</strong>。但由于谷歌插件商店审核速度奇慢，七天内未能完成名称更新审核，暂时无法在 Chrome Web Store 使用。
+  </div>
+</div>
 
 <div class="vp-doc" style="text-align: center; margin: 4rem auto 3rem; max-width: 780px; padding: 0 16px;">
   <h3 style="margin: 0 0 8px; font-weight: 600; font-size: 1.05em;">每一次下载，都是信任的刻度</h3>
@@ -86,7 +101,7 @@ features:
   </div>
   <div style="margin-top: 16px; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px;">
     <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="Nagi-ovo%2Fgemini-voyager | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-    <!-- <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Gemini Voyager - All-in-one Gemini suite: folders, chat export and much more | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a> -->
+    <!-- <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager - All-in-one Gemini suite: folders, chat export and much more | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a> -->
   </div>
 </div>
 
@@ -97,7 +112,7 @@ features:
   </a>
   <p style="margin-top: 24px; font-size: 1.05em; opacity: 0.86;">✨ 我们已在 Product Hunt 上线！欢迎来分享你的想法和反馈。❤️</p>
   <div style="margin-top: 12px; display: flex; justify-content: center;">
-    <a href="https://www.producthunt.com/posts/gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Gemini Voyager on Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
+    <a href="https://www.producthunt.com/posts/gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager on Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
   </div>
 </div>
 

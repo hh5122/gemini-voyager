@@ -217,6 +217,63 @@ function tryInsertQuoteSeparator(input: HTMLElement, separator: string): Separat
   return { inserted: true, insertedBreaks };
 }
 
+/**
+ * Replace math elements in a cloned DOM tree with LaTeX text nodes.
+ * Gemini uses `.math-inline` / `.math-block` containers with `[data-math]` children.
+ */
+function replaceMathWithLatex(root: DocumentFragment): void {
+  // 1. Replace .math-inline / .math-block containers
+  for (const container of Array.from(root.querySelectorAll('.math-inline, .math-block'))) {
+    const dataMathEl = container.querySelector('[data-math]');
+    const latex = dataMathEl?.getAttribute('data-math');
+    if (latex) {
+      const isBlock = container.classList.contains('math-block');
+      container.replaceWith(document.createTextNode(isBlock ? `$$${latex}$$` : `$${latex}$`));
+    }
+  }
+
+  // 2. Handle any remaining [data-math] elements not inside a container
+  for (const el of Array.from(root.querySelectorAll('[data-math]'))) {
+    const latex = el.getAttribute('data-math');
+    if (latex) {
+      el.replaceWith(document.createTextNode(`$${latex}$`));
+    }
+  }
+}
+
+/**
+ * Extract text from a Range, preserving LaTeX math syntax.
+ *
+ * `Range.toString()` returns visually rendered text, which loses LaTeX
+ * delimiters (e.g. `U∈[0,1)` instead of `$U \in [0, 1)$`). This function
+ * clones the range contents, replaces math elements with their `$...$` /
+ * `$$...$$` LaTeX source, then returns the resulting text.
+ */
+function extractTextWithLatex(range: Range): string {
+  const fragment = range.cloneContents();
+
+  // Short-circuit: no math elements → use native Range.toString()
+  if (!fragment.querySelector('.math-inline, .math-block, [data-math]')) {
+    return range.toString();
+  }
+
+  replaceMathWithLatex(fragment);
+
+  // Use a temporary element to get innerText (preserves newlines from block elements / <br>)
+  const temp = document.createElement('div');
+  temp.style.position = 'fixed';
+  temp.style.left = '-9999px';
+  temp.style.opacity = '0';
+  temp.style.pointerEvents = 'none';
+  temp.appendChild(fragment);
+  document.body.appendChild(temp);
+  // innerText preserves newlines from block elements / <br>; textContent is the fallback
+  const text = temp.innerText ?? temp.textContent ?? '';
+  temp.remove();
+
+  return text;
+}
+
 export function startQuoteReply() {
   injectStyles();
 
@@ -296,7 +353,7 @@ export function startQuoteReply() {
 
   function handleQuoteClick() {
     if (!currentSelectionRange) return;
-    const selectedText = currentSelectionRange.toString().trim();
+    const selectedText = extractTextWithLatex(currentSelectionRange).trim();
     if (!selectedText) return;
 
     const input = getChatInput();
@@ -432,10 +489,18 @@ export function startQuoteReply() {
           input.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
-        // Final focus force
-        input.focus();
-        // Some editors need an extra click or focus to show the cursor
-        setTimeout(() => input.focus(), TIMING.FOCUS_RETRY_DELAY_MS);
+        // Final focus — only if the editor doesn't already have focus,
+        // to avoid interrupting an in-progress IME composition (#497).
+        if (document.activeElement !== input) {
+          input.focus();
+        }
+        // Retry for editors that need extra time to show the cursor,
+        // but skip if the element is already focused (IME-safe).
+        setTimeout(() => {
+          if (document.activeElement !== input) {
+            input.focus();
+          }
+        }, TIMING.FOCUS_RETRY_DELAY_MS);
       };
 
       // Use a slightly longer delay to wait for any expansion transitions

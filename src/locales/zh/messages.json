@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "扩展程序名称"
   },
   "extDescription": {
-    "message": "通过时间线导航、文件夹组织、指令宝库和对话导出功能，全面提升您的 Gemini 使用体验。",
+    "message": "通过时间线导航、文件夹组织、指令宝库和对话导出功能，全面提升您的 Gemini™ 使用体验。",
     "description": "扩展程序描述"
   },
   "scrollMode": {
@@ -52,7 +52,7 @@
     "description": "语言标签"
   },
   "pm_title": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "面板标题"
   },
   "pm_add": {
@@ -218,6 +218,10 @@
   "updateNow": {
     "message": "立即更新",
     "description": "跳转更新 CTA"
+  },
+  "safariUpdateNotSynced": {
+    "message": "更新源尚未同步，请几小时后再试",
+    "description": "Safari 上 DMG 文件尚未上传到 GitHub releases 时显示"
   },
   "starProject": {
     "message": "为项目点亮 ⭐️",
@@ -455,6 +459,14 @@
     "message": "这将替换所有现有文件夹。系统将创建备份。是否继续？",
     "description": "覆盖确认"
   },
+  "folder_import_paste_json": {
+    "message": "或直接粘贴 JSON",
+    "description": "导入对话框中显示粘贴文本框的切换按钮"
+  },
+  "folder_import_paste_placeholder": {
+    "message": "在此粘贴 JSON...",
+    "description": "粘贴文本框的占位文字"
+  },
   "export_dialog_title": {
     "message": "导出对话",
     "description": "导出对话框标题"
@@ -642,14 +654,6 @@
   "backupDataAccessHint": {
     "message": "由于浏览器安全限制，选项页面无法直接读取 Gemini 页面的提示词和文件夹数据。建议使用 Gemini 页面上的提示词管理器和文件夹导出功能进行手动备份。",
     "description": "备份数据访问限制说明"
-  },
-  "hideUpsell": {
-    "message": "隐藏升级提醒",
-    "description": "隐藏升级到 AI Ultra 的提示"
-  },
-  "hideUpsellHint": {
-    "message": "隐藏侧边栏和模型菜单中的“升级到 Google AI Ultra”按钮",
-    "description": "隐藏升级提示的功能说明"
   },
   "promptManagerOptions": {
     "message": "提示词管理器",
@@ -995,6 +999,10 @@
     "message": "输入框为空时自动折叠，获得更多阅读空间",
     "description": "输入框折叠功能提示"
   },
+  "inputCollapseShortcutHint": {
+    "message": "{modifier}+I 展开",
+    "description": "展开折叠输入框的快捷键提示。{modifier} 在 macOS 上替换为 ⌘，其他平台替换为 Ctrl"
+  },
   "inputCollapsePlaceholder": {
     "message": "给 Gemini 发消息",
     "description": "折叠输入框时显示的占位符文本"
@@ -1008,12 +1016,12 @@
     "description": "解释非空折叠功能的提示文本"
   },
   "ctrlEnterSend": {
-    "message": "Ctrl+Enter 发送",
-    "description": "Ctrl+Enter 发送开关标签"
+    "message": "{modifier}+Enter 发送",
+    "description": "Modifier+Enter 发送开关标签。{modifier} 在 macOS 上替换为 ⌘，其他平台替换为 Ctrl"
   },
   "ctrlEnterSendHint": {
-    "message": "按 Ctrl+Enter 发送消息，Enter 键仅换行",
-    "description": "Ctrl+Enter 发送功能提示"
+    "message": "按 {modifier}+Enter 发送消息，Enter 键仅换行",
+    "description": "Modifier+Enter 发送功能提示。{modifier} 在 macOS 上替换为 ⌘，其他平台替换为 Ctrl"
   },
   "batch_delete_confirm": {
     "message": "确定要删除 {count} 个会话吗？此操作无法撤销。",
@@ -1171,6 +1179,14 @@
     "message": "鼠标离开时自动收起侧边栏，鼠标进入时展开",
     "description": "侧边栏自动收起功能提示"
   },
+  "sidebarFullHide": {
+    "message": "完全隐藏侧边栏",
+    "description": "完全隐藏侧边栏开关标签"
+  },
+  "sidebarFullHideHint": {
+    "message": "收起时完全隐藏侧边栏，鼠标移到左边缘唤出",
+    "description": "完全隐藏侧边栏功能提示"
+  },
   "folderSpacing": {
     "message": "文件夹间距",
     "description": "文件夹间距调节标签"
@@ -1267,13 +1283,29 @@
     "message": "研究网站",
     "description": "深度研究已研究网站章节标题"
   },
-  "snowEffect": {
-    "message": "飘雪效果",
-    "description": "Snow effect toggle label"
+  "visualEffect": {
+    "message": "视觉特效",
+    "description": "Visual effect selector label"
   },
-  "snowEffectHint": {
-    "message": "在页面上飘雪，营造冬日氛围",
-    "description": "Snow effect feature hint"
+  "visualEffectHint": {
+    "message": "为页面增添季节氛围",
+    "description": "Visual effect feature hint"
+  },
+  "visualEffectOff": {
+    "message": "关闭",
+    "description": "Visual effect off option"
+  },
+  "visualEffectSnow": {
+    "message": "飘雪",
+    "description": "Visual effect snow option"
+  },
+  "visualEffectSakura": {
+    "message": "樱花",
+    "description": "Visual effect sakura option"
+  },
+  "visualEffectRain": {
+    "message": "雨",
+    "description": "Visual effect rain option"
   },
   "changelog_title": {
     "message": "更新内容",
@@ -1288,20 +1320,32 @@
     "description": "Changelog modal documentation link text"
   },
   "changelog_recommendation": {
-    "message": "如果 Voyager 对你有帮助，欢迎推荐给朋友或在社交媒体上分享！",
+    "message": "如果 Voyager 帮到了你，欢迎推荐给朋友或发到社媒，记得 @ 作者哦！",
     "description": "Changelog modal recommendation message"
+  },
+  "changelog_social_xiaohongshu": {
+    "message": "小红书",
+    "description": "Xiaohongshu platform name for social links"
+  },
+  "changelog_social_zhihu": {
+    "message": "知乎",
+    "description": "Zhihu platform name for social links"
   },
   "changelog_docs_hint": {
     "message": "详细功能见文档",
     "description": "Changelog annotation pointing to docs icon"
   },
   "changelog_rate_chrome": {
-    "message": "觉得 Gemini Voyager 好用吗？在 Chrome 应用商店给个好评，能帮助更多人发现它！",
+    "message": "觉得 Voyager 好用吗？在 Chrome 应用商店给个好评，能帮助更多人发现它！",
     "description": "Chrome Web Store rating prompt in changelog modal"
   },
   "changelog_rate_chrome_cta": {
     "message": "立即评分",
     "description": "Chrome Web Store rating CTA button text"
+  },
+  "changelog_badge_mode": {
+    "message": "通过悬浮球上的 NEW 标记提醒，而非弹出此窗口",
+    "description": "Changelog notification mode toggle label"
   },
   "forkConversation": {
     "message": "分叉",
@@ -1374,5 +1418,45 @@
   "platformAIStudio": {
     "message": "AI Studio",
     "description": "AI Studio platform label."
+  },
+  "enableOnAIStudio": {
+    "message": "在 AI Studio 上启用",
+    "description": "Toggle to enable/disable Voyager on AI Studio"
+  },
+  "enableOnAIStudioHint": {
+    "message": "关闭后将禁用 AI Studio 上的 Voyager 功能（Prompt Manager 不受影响）",
+    "description": "Hint for AI Studio enable toggle"
+  },
+  "export_select_mode_only_user": {
+    "message": "仅选用户",
+    "description": "Export selection mode: select only user messages"
+  },
+  "export_select_mode_only_ai": {
+    "message": "仅选模型",
+    "description": "Export selection mode: select only AI messages"
+  },
+  "aiOrgCopyButton": {
+    "message": "AI 整理",
+    "description": "复制文件夹结构和对话以供 AI 整理的按钮"
+  },
+  "aiOrgCopied": { "message": "已复制！", "description": "复制 AI 整理提示后的确认" },
+  "aiOrgError": {
+    "message": "失败 — 请先打开 Gemini",
+    "description": "复制 AI 整理提示失败时的错误"
+  },
+  "aiOrgCopyHint": {
+    "message": "复制所有对话和文件夹结构作为提示词。粘贴到 Gemini 中即可获得可导入的文件夹方案。",
+    "description": "AI 整理复制按钮下方的提示文字"
+  },
+  "aiOrgCurrentFolders": { "message": "当前文件夹结构", "description": "AI 整理提示中的标题" },
+  "aiOrgUnfiledConversations": {
+    "message": "未归类的对话",
+    "description": "不在任何文件夹中的对话标题"
+  },
+  "aiOrgEmpty": { "message": "空", "description": "AI 整理提示中空文件夹的标签" },
+  "aiOrgInstructions": { "message": "指示", "description": "AI 指示部分的标题" },
+  "aiOrgInstructionsBody": {
+    "message": "根据以上对话和文件夹结构，请将它们重新整理为合理的文件夹层级。输出一个使用以下格式的 JSON 文件，可以直接导入到 Gemini Voyager 扩展中（使用「合并」导入策略）。保留已有的合理文件夹，根据需要创建新文件夹，将未归类的对话移入合适的文件夹。每个文件夹需要一个唯一 ID（使用短随机字符串），每个对话必须保留其原始的 conversationId 和 url。",
+    "description": "AI 生成可导入文件夹结构的指示正文"
   }
 }

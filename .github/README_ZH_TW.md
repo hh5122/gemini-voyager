@@ -1,6 +1,6 @@
 <div align="center">
   <img src="../docs/public/assets/promotion/Promo-Banner-cn.png" alt="promotion"/>
-  <h3>打造屬於你的 Gemini 體驗 ✨</h3>
+  <h3>打造屬於你的 Gemini™ 體驗 ✨</h3>
   <p>
     優雅的時間軸導航、資料夾管理對話、構建專屬提示詞庫。<br>
     <b>這是 Google Gemini 缺失的那塊拼圖。</b>
@@ -52,26 +52,29 @@
 
 <p align="center">
   <a href="https://x.com/Nag1ovo/status/2024507762483277927?s=20" target="_blank">
-    <img src="../docs/public/assets/x-recommendation.png" alt="KOL Recommendation" width="800">
+    <img src="../docs/public/assets/x-recommendation.png" alt="KOL Recommendation" width="500">
   </a>
   <br>
   <b>🎉 感謝知名科技圈大 V 與社區的強烈推薦！</b>
 </p>
 
+> [!IMPORTANT]
+> **改名公告**：由於商標版權問題，本插件已正式改名為 **Voyager**。但由於 Chrome Web Store 審核速度極慢，七天內未能完成名稱更新審核，暫時無法在 Chrome Web Store 使用。
+
 > [!NOTE]
-> 如果 Gemini Voyager 有幫助，歡迎分享到 X、Facebook、YouTube、Threads、Dcard 等等。每一次分享都能讓更多人看見這個專案，從而改善 Gemini 的使用體驗。謝謝。
+> 如果 Voyager 有幫助，歡迎分享到 X、Facebook、YouTube、Threads、Dcard 等等。每一次分享都能讓更多人看見這個專案，從而改善 Gemini 的使用體驗。謝謝。
 
 ---
 
-## 👋 為什麼開發 Gemini Voyager？
+## 👋 為什麼開發 Voyager？
 
 我們都很喜歡 Gemini，但有時候總覺得它少了一點"秩序感"。
 
-這就是我們開發 **Gemini Voyager** 的初衷。它不僅僅是一個工具，更是一個能幫你把 AI 對話變得井井有條、觸手可及的得力助手。無論你是需要處理大量對話的研究人員，還是喜歡收藏代碼片段的開發者，亦或是單純的整理控，Voyager 都是為你準備的。
+這就是我們開發 **Voyager** 的初衷。它不僅僅是一個工具，更是一個能幫你把 AI 對話變得井井有條、觸手可及的得力助手。無論你是需要處理大量對話的研究人員，還是喜歡收藏代碼片段的開發者，亦或是單純的整理控，Voyager 都是為你準備的。
 
 <p align="center">
   <a href="https://x.com/Nag1ovo/status/2024509398601597412?s=20" target="_blank">
-    <img src="../docs/public/assets/try-voyager.png" alt="Try Voyager" width="800">
+    <img src="../docs/public/assets/try-voyager.png" alt="Try Voyager" width="500">
   </a>
   <br>
   <i>在 2 月 18 號 Google Gemini App 導致部分用戶歷史對話無法訪問的問題中，Voyager 的用戶仍然能夠在其資料夾中看到被保存下來的對話。</i>
@@ -94,6 +97,7 @@
 - **💡 [提示詞庫](https://voyager.nagi.fun/zh_TW/guide/prompts)**: 跨平台同步提示詞，支持 Gemini、AI Studio 及 [自定義網站](https://voyager.nagi.fun/zh_TW/guide/custom-websites)。
 - **☁️ [雲同步](https://voyager.nagi.fun/zh_TW/guide/cloud-sync)**: 支持將資料夾和提示詞庫同步到 Google Drive。
 - **📐 公式複製**: 一鍵複製 LaTeX 和 MathML (Word) 源碼。
+- **🌦️ 視覺特效**: 在設置面板中一鍵切換 **飄雪**、**電影感雨滴** 或 **櫻花飄落**，給頁面增添季節氛圍。
 
 ### ✨ Gemini 專屬增強
 
@@ -110,7 +114,13 @@
   - **[防自動跳轉](https://voyager.nagi.fun/zh_TW/guide/prevent-auto-scroll)**: 攔截每次發送新問題後頁面強制滾動到最底部的內建行為，找回絲滑體驗。
   - **[輸入框摺疊](https://voyager.nagi.fun/zh_TW/guide/input-collapse)**: 輸入框自動收納，釋放閱讀空間。
   - **[預設模型](https://voyager.nagi.fun/zh_TW/guide/default-model)**: 為新對話設置預設選中的模型。
-  - **[隱藏最近項目和 Gem](https://voyager.nagi.fun/zh_TW/guide/recents-hider)**: 隱藏側邊欄的“最近”列表，減少干擾。
+  - **[隱藏最近項目和 Gem](https://voyager.nagi.fun/zh_TW/guide/recents-hider)**: 隱藏側邊欄的”最近”列表，減少干擾。
+
+### 🎨 個性化體驗
+
+- 點擊插件圖標，在設定中的 **視覺特效** 裡可切換 `關閉`、`飄雪`、`櫻花`、`雨`。
+- 特效以輕量全螢幕覆蓋層呈現，不會阻擋頁面互動。
+- 切換特效或關閉時，粒子會自然退場，不會突兀消失。
 
 ---
 
@@ -154,7 +164,7 @@
   </a>
 </div>
 
-如果 Gemini Voyager 提升了你的體驗，歡迎請我喝杯咖啡。贊助者將被列入致謝名單。❤️
+如果 Voyager 提升了你的體驗，歡迎請我喝杯咖啡。贊助者將被列入致謝名單。❤️
 
 <div align="center">
   <a href="https://www.buymeacoffee.com/Nag1ovo" target="_blank">
@@ -191,9 +201,9 @@
 
 ### 🎙️ 特別推薦: Typeless
 
-我非常推薦 **[Typeless (typeless.com)](https://www.typeless.com/refer?code=MZRYZP1)**，一款 AI 語音轉文字工具。我在開發過程中一直在使用它，極大地提升了我的工作效率。
+我非常推薦 **[Typeless (typeless.com)](https://www.typeless.com/?via=gemini-voyager)**，一款 AI 語音轉文字工具。我在開發過程中一直在使用它，極大地提升了我的工作效率。
 
-> 🎁 **[點擊我的邀請鏈接](https://www.typeless.com/refer?code=MZRYZP1)**（邀請碼 **`MZRYZP1`**）可獲得 **5 美元免費額度**。這也是支持本項目的一種免費方式！❤️
+> 🎁 **[點擊我的邀請鏈接](https://www.typeless.com/?via=gemini-voyager)**（邀請碼 _`gemini-voyager`_）可獲得 **5 美元免費額度**。這也是支持本項目的一種免費方式！❤️
 
 ---
 
@@ -254,7 +264,15 @@ bun run build:all
 
 </details>
 
-感謝你讓 Gemini Voyager 變得更好！❤️
+感謝你讓 Voyager 變得更好！❤️
+
+### ❤️ 特別感謝
+
+特別感謝所有為 Voyager 做出貢獻的貢獻者們 ❤️
+
+<a href="https://github.com/Nagi-ovo/gemini-voyager/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Nagi-ovo/gemini-voyager&max=200&columns=14" />
+</a>
 
 ---
 
@@ -262,7 +280,11 @@ bun run build:all
 
 - **[DeepSeek Voyager](https://github.com/Azurboy/deepseek-voyager)** - 為 DeepSeek 適配的 Fork 版本。
 
+- **[claude-nexus](https://github.com/Qiuner/claude-nexus)** - 受 Voyager 啟發的 Claude.ai 增強擴充套件，提供時間軸導覽、資料夾管理、提示詞庫等功能，並與 Voyager 的提示詞匯入/匯出完全相容！
+
 - **[ChatGPT Conversation Timeline](https://github.com/Reborn14/chatgpt-conversation-timeline)** - 本項目的靈感來源。
+
+- **[Ophel Atlas](https://github.com/urzeye/ophel)** - 將 AI 對話轉化為有組織、可搜尋文件的瀏覽器擴充功能，支援自動生成大綱、對話管理和提示詞庫，相容多個 AI 平台。
 
 ---
 

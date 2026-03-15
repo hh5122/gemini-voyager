@@ -28,14 +28,15 @@ import { startMermaid } from './mermaid/index';
 import { startPreventAutoScroll } from './preventAutoScroll/index';
 import { startPromptManager } from './prompt/index';
 import { startQuoteReply } from './quoteReply/index';
+import { startRainEffect } from './rainEffect/index';
 import { startRecentsHider } from './recentsHider/index';
+import { startSakuraEffect } from './sakuraEffect/index';
 import { startSendBehavior } from './sendBehavior/index';
 import { startSidebarAutoHide } from './sidebarAutoHide';
 import { startSidebarWidthAdjuster } from './sidebarWidth';
 import { startSnowEffect } from './snowEffect/index';
 import { startTimeline } from './timeline/index';
 import { startTitleUpdater } from './titleUpdater';
-import { startUpsellHider } from './upsellHider/index';
 import { startWatermarkRemover } from './watermarkRemover/index';
 
 // Suppress Vite's CSS preload errors in the Chrome extension content script context.
@@ -189,6 +190,8 @@ async function initializeFeatures(): Promise<void> {
       await delay(LIGHT_FEATURE_INIT_DELAY);
 
       startSnowEffect();
+      startSakuraEffect();
+      startRainEffect();
       await delay(LIGHT_FEATURE_INIT_DELAY);
 
       startInputCollapse();
@@ -243,10 +246,6 @@ async function initializeFeatures(): Promise<void> {
       startGemsHider();
       await delay(LIGHT_FEATURE_INIT_DELAY);
 
-      // Upsell hider - hide "Upgrade to Google AI Ultra" buttons
-      void startUpsellHider();
-      await delay(LIGHT_FEATURE_INIT_DELAY);
-
       // Markdown Patcher - fixes broken bold tags due to HTML injection
       startMarkdownPatcher();
       await delay(LIGHT_FEATURE_INIT_DELAY);
@@ -283,6 +282,22 @@ async function initializeFeatures(): Promise<void> {
     }
 
     if (location.hostname === 'aistudio.google.com' || location.hostname === 'aistudio.google.cn') {
+      // Check if user has disabled Voyager on AI Studio
+      const aiStudioEnabled = await new Promise<boolean>((resolve) => {
+        try {
+          chrome.storage?.sync?.get({ [StorageKeys.GV_AISTUDIO_ENABLED]: true }, (res) =>
+            resolve(res?.[StorageKeys.GV_AISTUDIO_ENABLED] !== false),
+          );
+        } catch {
+          resolve(true);
+        }
+      });
+
+      if (!aiStudioEnabled) {
+        console.log('[Gemini Voyager] AI Studio features disabled by user');
+        return;
+      }
+
       startAIStudioFolderManager();
       await delay(HEAVY_FEATURE_INIT_DELAY);
 

@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../docs/public/assets/promotion/Promo-Banner.png" alt="promotion"/>
-  <h3>Gemini 경험을 진정으로 당신의 것으로 만드세요 ✨</h3>
+  <img src="../docs/public/assets/promotion/Promo-Banner-KO.png" alt="promotion"/>
+  <h3>Gemini™ 경험을 진정으로 당신의 것으로 만드세요 ✨</h3>
   <p>
     우아한 타임라인으로 대화를 탐색하고, 폴더로 채팅을 정리하며, 자신만의 프롬프트 저장소를 구축하세요.<br>
     <b>Google Gemini 를 위한 필수 강화 도구입니다.</b>
@@ -52,26 +52,29 @@
 
 <p align="center">
   <a href="https://x.com/Nag1ovo/status/2024507762483277927?s=20" target="_blank">
-    <img src="../docs/public/assets/x-recommendation.png" alt="KOL Recommendation" width="800">
+    <img src="../docs/public/assets/x-recommendation.png" alt="KOL Recommendation" width="500">
   </a>
   <br>
   <b>🎉 주요 기술 KOL 및 커뮤니티에서 적극 권장합니다!</b>
 </p>
 
+> [!IMPORTANT]
+> **이름 변경 안내**: 상표 및 저작권 문제로 인해 이 확장 프로그램이 공식적으로 **Voyager**로 이름이 변경되었습니다. 하지만 Chrome 웹 스토어의 심사 속도가 매우 느려 7일 이내에 이름 변경이 승인되지 않아, 현재 Chrome Web Store에서 일시적으로 이용할 수 없는 상태입니다.
+
 > [!NOTE]
-> Gemini Voyager 가 도움이 되었다면 X, YouTube, Reddit 등에서 공유해 주세요. 공유가 늘수록 더 많은 사용자가 프로젝트를 발견하고 Gemini 사용 경험도 함께 좋아집니다. 감사합니다.
+> Voyager 가 도움이 되었다면 X, YouTube, Reddit 등에서 공유해 주세요. 공유가 늘수록 더 많은 사용자가 프로젝트를 발견하고 Gemini 사용 경험도 함께 좋아집니다. 감사합니다.
 
 ---
 
-## 👋 왜 Gemini Voyager 인가요?
+## 👋 왜 Voyager 인가요?
 
 우리는 Gemini 를 사랑하지만, 때로는 조금 더 구조화된 정리가 필요하다고 느꼈습니다.
 
-그래서 우리는 **Gemini Voyager**를 만들었습니다. 이것은 단순한 도구가 아니라, AI 대화를 정리하고 액세스 가능하며 생산적으로 유지하도록 돕는 동반자입니다. 수십 개의 스레드를 관리하는 연구자이든, 코드 스니펫을 저장하는 개발자이든, 단순히 정리를 좋아하는 사람이든 Voyager 는 당신을 위해 설계되었습니다.
+그래서 우리는 **Voyager**를 만들었습니다. 이것은 단순한 도구가 아니라, AI 대화를 정리하고 액세스 가능하며 생산적으로 유지하도록 돕는 동반자입니다. 수십 개의 스레드를 관리하는 연구자이든, 코드 스니펫을 저장하는 개발자이든, 단순히 정리를 좋아하는 사람이든 Voyager 는 당신을 위해 설계되었습니다.
 
 <p align="center">
   <a href="https://x.com/Nag1ovo/status/2024509398601597412?s=20" target="_blank">
-    <img src="../docs/public/assets/try-voyager.png" alt="Try Voyager" width="800">
+    <img src="../docs/public/assets/try-voyager.png" alt="Try Voyager" width="500">
   </a>
   <br>
   <i>2 월 18 일 Google Gemini 앱으로 인해 일부 사용자의 과거 대화에 접근할 수 없는 문제가 발생했을 때, Voyager 사용자는 여전히 폴더에 저장된 대화를 볼 수 있었습니다.</i>
@@ -88,6 +91,7 @@
 - **💡 [프롬프트 저장소](https://voyager.nagi.fun/ko/guide/prompts)**: Gemini, AI Studio 및 [사용자 지정 웹사이트](https://voyager.nagi.fun/ko/guide/custom-websites)에서 프롬프트를 저장하고 재사용하세요.
 - **☁️ [클라우드 동기화](https://voyager.nagi.fun/ko/guide/cloud-sync)**: 폴더와 프롬프트를 Google Drive 에 동기화하세요.
 - **📐 수식 복사**: LaTeX 및 MathML (Word) 소스 코드를 클릭 한 번으로 복사하세요.
+- **🌦️ 시각 효과**: 설정 패널에서 **눈**, **시네마틱 비**, **벚꽃잎** 효과를 전환하여 계절 분위기를 연출하세요.
 
 ### ✨ Gemini 전용 기능
 
@@ -105,6 +109,12 @@
   - **[입력창 접기](https://voyager.nagi.fun/ko/guide/input-collapse)**: 더 많은 읽기 공간을 위해 자동으로 확장되는 입력 영역을 제공합니다.
   - **[기본 모델](https://voyager.nagi.fun/ko/guide/default-model)**: 좋아하는 모델을 기본값으로 설정하세요.
   - **[최근 항목 숨기기](https://voyager.nagi.fun/ko/guide/recents-hider)**: 사이드바에서 "최근" 목록을 숨겨 산만함을 줄입니다.
+
+### 🎨 개인화
+
+- 확장 프로그램 팝업을 열고 **시각 효과**에서 `끄기`, `눈`, `벚꽃`, `비`를 전환할 수 있습니다.
+- 효과는 가벼운 전체 화면 오버레이로 렌더링되며, 페이지 상호작용을 차단하지 않습니다.
+- 효과를 전환하거나 끄면 파티클이 갑자기 사라지는 대신 자연스럽게 사라집니다.
 
 ---
 
@@ -148,7 +158,7 @@
   </a>
 </div>
 
-Gemini Voyager 가 도움이 되었다면 커피 한 잔을 후원해 주세요. 지속적인 업데이트에 큰 도움이 됩니다! 후원자분들은 특별 감사 섹션에 기재됩니다. ❤️
+Voyager 가 도움이 되었다면 커피 한 잔을 후원해 주세요. 지속적인 업데이트에 큰 도움이 됩니다! 후원자분들은 특별 감사 섹션에 기재됩니다. ❤️
 
 <div align="center">
   <a href="https://www.buymeacoffee.com/Nag1ovo" target="_blank">
@@ -185,9 +195,9 @@ Gemini Voyager 가 도움이 되었다면 커피 한 잔을 후원해 주세요.
 
 ### 🎙️ 추천 도구: Typeless
 
-Gemini Voyager 개발 중에 광범위하게 사용한 AI 음성 - 텍스트 변환 도구인 **[Typeless (typeless.com)](https://www.typeless.com/refer?code=MZRYZP1)**를 강력히 추천합니다. 이를 매일의 워크플로우에 통합함으로써 엄청난 시간을 절약하고 생산성을 크게 높일 수 있었습니다.
+Voyager 개발 중에 광범위하게 사용한 AI 음성 - 텍스트 변환 도구인 **[Typeless (typeless.com)](https://www.typeless.com/?via=gemini-voyager)**를 강력히 추천합니다. 이를 매일의 워크플로우에 통합함으로써 엄청난 시간을 절약하고 생산성을 크게 높일 수 있었습니다.
 
-> 🎁 **[제 추천 링크를 통해 가입](https://www.typeless.com/refer?code=MZRYZP1)**(코드: **`MZRYZP1`**) 하시면 **$5 무료 크레딧**을 받으실 수 있습니다. 이는 제가 이 프로젝트를 계속 유지 관리할 수 있는 크레딧을 제공하며, 저의 작업을 지원하는 무료 방법입니다! ❤️
+> 🎁 **[제 추천 링크를 통해 가입](https://www.typeless.com/?via=gemini-voyager)** (코드: _`gemini-voyager`_) 하시면 **$5 무료 크레딧**을 받으실 수 있습니다. 이는 제가 이 프로젝트를 계속 유지 관리할 수 있는 크레딧을 제공하며, 저의 작업을 지원하는 무료 방법입니다! ❤️
 
 ---
 
@@ -248,15 +258,27 @@ bun run build:all      # 모든 브라우저
 
 </details>
 
-Gemini Voyager 를 더 좋게 만들 수 있도록 도와주셔서 감사합니다! ❤️
+Voyager 를 더 좋게 만들 수 있도록 도와주셔서 감사합니다! ❤️
+
+### ❤️ 특별 감사
+
+Voyager에 기여해 주신 모든 기여자분들께 특별히 감사드립니다 ❤️
+
+<a href="https://github.com/Nagi-ovo/gemini-voyager/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Nagi-ovo/gemini-voyager&max=200&columns=14" />
+</a>
 
 ---
 
 ## 🌟 크레딧
 
-- **[DeepSeek Voyager](https://github.com/Azurboy/deepseek-voyager)** - Gemini Voyager 를 DeepSeek 에 맞게 조정한 포크 프로젝트로, DeepSeek 사용자에게 타임라인 탐색 및 채팅 관리 기능을 제공합니다!
+- **[DeepSeek Voyager](https://github.com/Azurboy/deepseek-voyager)** - Voyager 를 DeepSeek 에 맞게 조정한 포크 프로젝트로, DeepSeek 사용자에게 타임라인 탐색 및 채팅 관리 기능을 제공합니다!
 
-- **[ChatGPT Conversation Timeline](https://github.com/Reborn14/chatgpt-conversation-timeline)** - 이 프로젝트에 영감을 준 ChatGPT 용 오리지널 타임라인 탐색 확장 프로그램입니다. Gemini Voyager 는 타임라인 개념을 Gemini 에 맞게 조정하고 폴더 관리, 프롬프트 저장소, 채팅 내보내기 등 광범위한 새로운 기능을 추가했습니다.
+- **[claude-nexus](https://github.com/Qiuner/claude-nexus)** - Voyager에서 영감을 받은 Claude.ai 향상 확장 프로그램으로, 타임라인 탐색, 폴더 관리, 프롬프트 라이브러리 등 다양한 기능을 제공하며 Voyager 프롬프트 가져오기/내보내기와 완전 호환됩니다!
+
+- **[ChatGPT Conversation Timeline](https://github.com/Reborn14/chatgpt-conversation-timeline)** - 이 프로젝트에 영감을 준 ChatGPT 용 오리지널 타임라인 탐색 확장 프로그램입니다. Voyager 는 타임라인 개념을 Gemini 에 맞게 조정하고 폴더 관리, 프롬프트 저장소, 채팅 내보내기 등 광범위한 새로운 기능을 추가했습니다.
+
+- **[Ophel Atlas](https://github.com/urzeye/ophel)** - AI 대화를 체계적이고 검색 가능한 문서로 변환하는 브라우저 확장 프로그램입니다. 자동 개요 생성, 대화 관리, 프롬프트 라이브러리를 제공하며 여러 AI 플랫폼을 지원합니다.
 
 ---
 

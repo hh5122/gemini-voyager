@@ -2,7 +2,7 @@
 
 **Different Dimensions, Seamless Sharing**
 
-Iterate logic on the web, and implement code in the IDE. Gemini Voyager breaks down the dimensional barriers, giving your IDE the "thinking process" of the web instantly.
+Iterate logic on the web, and implement code in the IDE. Voyager breaks down the dimensional barriers, giving your IDE the "thinking process" of the web instantly.
 
 ## No More Tab Hopping
 
@@ -16,7 +16,7 @@ The biggest pain for developers: after discussing a solution thoroughly on the w
 
    ![CoBridge Extension](/assets/CoBridge-extension.png)
 
-   After installation, click the icon on the right and start the server.
+   After installation, **open any working directory**, click the icon on the right and start the server.
    ![CoBridge Server On](/assets/CoBridge-on.png)
 
 2. **Handshake Connection**:
@@ -31,7 +31,7 @@ The biggest pain for developers: after discussing a solution thoroughly on the w
 
 ## Rooting in the IDE
 
-After synchronization, a `.cobridge/AI_CONTEXT.md` file will appear in your IDE root directory. Whether it's Trae, Cursor, or Copilot, they will automatically read this "memory" through their respective Rule files.
+After synchronization, a `.cobridge/AI_CONTEXT.md` file will appear in your IDE working directory. Whether it's Trae, Cursor, or Copilot, they will automatically read this "memory" through their respective Rule files.
 
 ```
 your-project/

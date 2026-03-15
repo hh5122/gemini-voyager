@@ -1052,6 +1052,7 @@ export class AIStudioFolderManager {
         sourceFolderId: folderId,
       };
       try {
+        if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer?.setData('application/json', JSON.stringify(data));
       } catch {}
       try {
@@ -1511,7 +1512,7 @@ export class AIStudioFolderManager {
       const transfer = e.dataTransfer;
       if (!transfer) return;
       const json = JSON.stringify(data);
-      transfer.effectAllowed = 'copyMove';
+      transfer.effectAllowed = 'move';
       transfer.setData('application/json', json);
       transfer.setData('text/plain', json);
       if (data.url) {
@@ -1564,7 +1565,7 @@ export class AIStudioFolderManager {
           if (!promptAnchor) return;
 
           const id = this.extractPromptId(promptAnchor);
-          const title = normalizeText(promptAnchor.textContent || '');
+          const title = this.extractPromptTitle(promptAnchor) || '';
           const rawHref = promptAnchor.getAttribute('href') || promptAnchor.href || '';
           const url = rawHref.startsWith('http')
             ? rawHref
@@ -1646,7 +1647,7 @@ export class AIStudioFolderManager {
         e.stopPropagation();
 
         const id = this.extractPromptId(anchor);
-        const title = normalizeText(anchor.textContent || '');
+        const title = this.extractPromptTitle(anchor) || '';
         // Ensure accurate URL construction
         const rawHref = anchor.getAttribute('href') || anchor.href || '';
         const url = rawHref.startsWith('http')
@@ -1786,7 +1787,7 @@ export class AIStudioFolderManager {
         e.preventDefault();
         e.stopPropagation();
         try {
-          if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+          if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
         } catch {}
       });
       rootItem.addEventListener('dragleave', (e) => {

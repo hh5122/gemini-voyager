@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Améliorez votre expérience Gemini : chronologie, dossiers, prompts et export.",
+    "message": "Améliorez votre expérience Gemini™ : chronologie, dossiers, prompts et export.",
     "description": "Extension description"
   },
   "scrollMode": {
@@ -52,7 +52,7 @@
     "description": "Language label"
   },
   "pm_title": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Prompt Manager title"
   },
   "pm_add": {
@@ -218,6 +218,10 @@
   "updateNow": {
     "message": "Mettre à jour",
     "description": "CTA to update to latest version"
+  },
+  "safariUpdateNotSynced": {
+    "message": "La mise à jour n'est pas encore disponible, veuillez réessayer dans quelques heures",
+    "description": "Shown on Safari when the DMG file is not yet available on GitHub releases"
   },
   "starProject": {
     "message": "Me soutenir ⭐",
@@ -454,6 +458,14 @@
   "folder_import_confirm_overwrite": {
     "message": "Ceci remplacera tous les dossiers existants. Une sauvegarde sera créée. Continuer ?",
     "description": "Overwrite confirmation"
+  },
+  "folder_import_paste_json": {
+    "message": "Ou coller le JSON directement",
+    "description": "Bouton pour afficher la zone de collage dans le dialogue d'importation"
+  },
+  "folder_import_paste_placeholder": {
+    "message": "Collez votre JSON ici...",
+    "description": "Texte d'espace réservé pour la zone de collage"
   },
   "export_dialog_title": {
     "message": "Exporter la discussion",
@@ -987,6 +999,10 @@
     "message": "Réduit la zone de saisie quand elle est vide pour gagner de l'espace",
     "description": "Input collapse feature hint"
   },
+  "inputCollapseShortcutHint": {
+    "message": "{modifier}+I pour agrandir",
+    "description": "Shortcut hint for expanding collapsed input. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
+  },
   "inputCollapsePlaceholder": {
     "message": "Message à Gemini",
     "description": "Placeholder text shown in collapsed input"
@@ -1000,12 +1016,12 @@
     "description": "Hint text explaining the collapse when not empty feature"
   },
   "ctrlEnterSend": {
-    "message": "Ctrl+Entrée pour envoyer",
-    "description": "Ctrl+Enter to send toggle label"
+    "message": "{modifier}+Entrée pour envoyer",
+    "description": "Modifier+Enter to send toggle label. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "ctrlEnterSendHint": {
-    "message": "Appuyez sur Ctrl+Entrée pour envoyer, Entrée pour un saut de ligne",
-    "description": "Ctrl+Enter to send feature hint"
+    "message": "Appuyez sur {modifier}+Entrée pour envoyer, Entrée pour un saut de ligne",
+    "description": "Modifier+Enter to send feature hint. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "batch_delete_confirm": {
     "message": "Voulez-vous vraiment supprimer {count} discussion(s) ? Cette action est irréversible.",
@@ -1163,6 +1179,14 @@
     "message": "Réduit automatiquement la barre latérale quand la souris la quitte, l'étend quand elle y entre",
     "description": "Auto-hide sidebar feature hint"
   },
+  "sidebarFullHide": {
+    "message": "Masquer complètement la barre latérale",
+    "description": "Fully hide sidebar toggle label"
+  },
+  "sidebarFullHideHint": {
+    "message": "Masquer complètement la barre latérale réduite, survoler le bord gauche pour afficher",
+    "description": "Fully hide sidebar feature hint"
+  },
   "folderSpacing": {
     "message": "Espacement des dossiers",
     "description": "Folder spacing adjustment label"
@@ -1188,11 +1212,11 @@
     "description": "Wide subfolder indentation label"
   },
   "export_select_mode_select_all": {
-    "message": "Select all",
+    "message": "Tout sélectionner",
     "description": "Selection mode select all toggle"
   },
   "export_select_mode_count": {
-    "message": "Selected {count}",
+    "message": "{count} sélectionné(s)",
     "description": "Selection mode selected message count"
   },
   "export_select_mode_toggle": {
@@ -1259,13 +1283,29 @@
     "message": "Sites web consultés",
     "description": "En-tête de section des sites web recherchés de Deep Research"
   },
-  "snowEffect": {
-    "message": "Effet de neige",
-    "description": "Snow effect toggle label"
+  "visualEffect": {
+    "message": "Effets visuels",
+    "description": "Visual effect selector label"
   },
-  "snowEffectHint": {
-    "message": "Laissez la neige tomber sur la page pour une ambiance hivernale",
-    "description": "Snow effect feature hint"
+  "visualEffectHint": {
+    "message": "Ajoutez une ambiance saisonniere a la page",
+    "description": "Visual effect feature hint"
+  },
+  "visualEffectOff": {
+    "message": "Desactive",
+    "description": "Visual effect off option"
+  },
+  "visualEffectSnow": {
+    "message": "Neige",
+    "description": "Visual effect snow option"
+  },
+  "visualEffectSakura": {
+    "message": "Sakura",
+    "description": "Visual effect sakura option"
+  },
+  "visualEffectRain": {
+    "message": "Pluie",
+    "description": "Visual effect rain option"
   },
   "changelog_title": {
     "message": "Nouveautés",
@@ -1280,20 +1320,32 @@
     "description": "Changelog modal documentation link text"
   },
   "changelog_recommendation": {
-    "message": "Si Voyager vous a été utile, partagez-le avec vos amis ou sur les réseaux sociaux !",
+    "message": "Si Voyager vous a été utile, partagez-le avec vos amis ou sur les réseaux sociaux — n'hésitez pas à mentionner l'auteur !",
     "description": "Changelog modal recommendation message"
+  },
+  "changelog_social_xiaohongshu": {
+    "message": "Xiaohongshu",
+    "description": "Xiaohongshu platform name for social links"
+  },
+  "changelog_social_zhihu": {
+    "message": "Zhihu",
+    "description": "Zhihu platform name for social links"
   },
   "changelog_docs_hint": {
     "message": "Détails dans les docs",
     "description": "Changelog annotation pointing to docs icon"
   },
   "changelog_rate_chrome": {
-    "message": "Vous aimez Gemini Voyager ? Une note sur le Chrome Web Store aide d'autres utilisateurs à le découvrir !",
+    "message": "Vous aimez Voyager ? Une note sur le Chrome Web Store aide d'autres utilisateurs à le découvrir !",
     "description": "Chrome Web Store rating prompt in changelog modal"
   },
   "changelog_rate_chrome_cta": {
     "message": "Évaluer",
     "description": "Chrome Web Store rating CTA button text"
+  },
+  "changelog_badge_mode": {
+    "message": "Notifier via un badge NEW sur le bouton flottant au lieu de cette fenêtre",
+    "description": "Changelog notification mode toggle label"
   },
   "forkConversation": {
     "message": "Fork",
@@ -1367,12 +1419,56 @@
     "message": "AI Studio",
     "description": "AI Studio platform label."
   },
-  "hideUpsell": {
-    "message": "Masquer les invites de mise à niveau",
-    "description": "Hide the \"Upgrade to AI Ultra\" prompt"
+  "enableOnAIStudio": {
+    "message": "Activer sur AI Studio",
+    "description": "Toggle to enable/disable Voyager on AI Studio"
   },
-  "hideUpsellHint": {
-    "message": "Masquer le bouton « Passer à Google AI Ultra » dans la barre latérale et le menu des modèles",
-    "description": "Explanation for the upsell hiding feature"
+  "enableOnAIStudioHint": {
+    "message": "Désactiver pour désactiver les fonctions Voyager sur AI Studio (Prompt Manager reste actif)",
+    "description": "Hint for AI Studio enable toggle"
+  },
+  "export_select_mode_only_user": {
+    "message": "Sélectionner uniquement l'utilisateur",
+    "description": "Export selection mode: select only user messages"
+  },
+  "export_select_mode_only_ai": {
+    "message": "Sélectionner uniquement l'IA",
+    "description": "Export selection mode: select only AI messages"
+  },
+  "aiOrgCopyButton": {
+    "message": "Organiser par IA",
+    "description": "Bouton pour copier la structure des dossiers et conversations pour organisation IA"
+  },
+  "aiOrgCopied": {
+    "message": "Copié !",
+    "description": "Confirmation après la copie du prompt d'organisation IA"
+  },
+  "aiOrgError": {
+    "message": "Échec — ouvrez Gemini d'abord",
+    "description": "Erreur lors de la copie du prompt d'organisation IA"
+  },
+  "aiOrgCopyHint": {
+    "message": "Copie toutes les conversations et la structure des dossiers comme un prompt. Collez dans Gemini pour obtenir un plan de dossiers importable.",
+    "description": "Texte d'aide sous le bouton de copie d'organisation IA"
+  },
+  "aiOrgCurrentFolders": {
+    "message": "Structure des dossiers actuelle",
+    "description": "En-tête dans le prompt d'organisation IA"
+  },
+  "aiOrgUnfiledConversations": {
+    "message": "Conversations non classées",
+    "description": "En-tête pour les conversations qui ne sont dans aucun dossier"
+  },
+  "aiOrgEmpty": {
+    "message": "vide",
+    "description": "Étiquette pour les dossiers vides dans le prompt d'organisation IA"
+  },
+  "aiOrgInstructions": {
+    "message": "Instructions",
+    "description": "En-tête de la section d'instructions IA"
+  },
+  "aiOrgInstructionsBody": {
+    "message": "Sur la base des conversations et de la structure des dossiers ci-dessus, réorganisez-les en une hiérarchie logique de dossiers. Générez un fichier JSON au format exact ci-dessous qui peut être directement importé dans l'extension Gemini Voyager (utilisez la stratégie d'importation \"Fusionner\"). Conservez les dossiers bien organisés existants, créez-en de nouveaux si nécessaire et déplacez les conversations non classées dans des dossiers appropriés. Chaque dossier a besoin d'un ID unique (utilisez une chaîne aléatoire courte) et chaque conversation doit conserver son conversationId et son url d'origine.",
+    "description": "Corps des instructions pour que l'IA génère une structure de dossiers importable"
   }
 }

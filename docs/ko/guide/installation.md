@@ -6,7 +6,7 @@
 
 원하는 설치 방법을 선택하세요.
 
-> ⚠️ 참고: 프롬프트 관리자는 Gemini Enterprise를 지원하는 유일한 기능입니다.
+> ⚠️ 참고: 프롬프트 관리자는 Gemini™ Enterprise를 지원하는 유일한 기능입니다.
 
 ## 1. 확장 프로그램 스토어 (권장)
 
@@ -15,6 +15,10 @@
 **Chrome / Brave / Opera / Vivaldi:**
 
 [<img src="https://img.shields.io/badge/Chrome_Web_Store-Download-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Chrome 웹 스토어에서 설치" height="40"/>](https://chromewebstore.google.com/detail/kjdpnimcnfinmilocccippmododhceol?utm_source=github&utm_medium=docs&utm_campaign=organic_growth&utm_content=ko)
+
+::: warning ⚠️ Chrome Web Store 일시적으로 이용 불가
+상표 문제로 인해 이 확장 프로그램이 **Voyager**로 공식 개명되었습니다. Chrome Web Store 심사가 진행 중입니다. 자세한 내용은 [이 게시물](https://x.com/Nag1ovo/status/2031561180213313944)을 확인하세요. 당분간 **Edge / Firefox** 또는 **수동 설치**를 이용해 주세요.
+:::
 
 **Microsoft Edge:**
 

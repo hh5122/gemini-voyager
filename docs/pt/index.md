@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: 'Gemini Voyager'
+  name: 'Voyager'
   text: 'O sistema operativo que faltava ao Gemini.'
   tagline: 'Adoramos o Gemini. Só queríamos que fosse perfeito.'
   image:
     src: /logo.png
-    alt: Logótipo do Gemini Voyager
+    alt: Logótipo do Voyager
   actions:
     - theme: brand
       text: Descarregar
@@ -18,7 +18,7 @@ hero:
 
 teaser:
   title: 'Simplesmente funciona.'
-  description: 'Não queríamos criar apenas mais uma extensão. Queríamos criar uma melhor forma de pensar.<br>Quando usa o Gemini Voyager, deixa de lutar contra a interface e passa a fluir com ela.'
+  description: 'Não queríamos criar apenas mais uma extensão. Queríamos criar uma melhor forma de pensar.<br>Quando usa o Voyager, deixa de lutar contra a interface e passa a fluir com ela.'
   image: '/assets/teaser.png'
   features:
     - title: 'Linha do Tempo'
@@ -47,6 +47,9 @@ features:
   - icon: 💾
     title: Exportar Chat
     details: Soberania dos dados. Arquive em vários formatos para que o conhecimento nunca se perca.
+  - icon: 🌦️
+    title: Efeitos Visuais
+    details: Defina o ambiente. Alterne entre neve, chuva e pétalas de sakura na janela popup.
   - icon: 🍌
     title: Remoção de Marca de Água NanoBanana
     details: Remoção de marca de água sem perdas. Mantenha os momentos de IA puros.
@@ -65,10 +68,22 @@ features:
   - icon: 🗑️
     title: Eliminação em Lote
     details: Limpeza em massa. Selecione várias conversas e elimine-as todas de uma vez.
-  # - icon: ⚡️
-  #   title: Modelo padrão
-  #   details: Pare de se repetir. Mude automaticamente para seu modelo preferido em novos chats.
+  - icon: ☁️
+    title: Sincronização na Nuvem
+    details: Sempre sincronizado. Faça backup de pastas e prompts no Google Drive entre dispositivos.
+  - icon: ⚡️
+    title: Modelo padrão
+    details: Pare de se repetir. Mude automaticamente para seu modelo preferido em novos chats.
+  - icon: 🔬
+    title: Deep Research
+    details: Abra a caixa preta. Extraia processos de pesquisa e links das sessões de Deep Research.
 ---
+
+<div class="vp-doc" style="margin: 2rem auto 0; max-width: 780px; padding: 0 16px;">
+  <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.6); border-radius: 8px; padding: 12px 16px;">
+    <strong>⚠️ Aviso de mudança de nome</strong>: Devido a problemas de marcas registradas e direitos autorais, esta extensão foi oficialmente renomeada para <strong>Voyager</strong>. No entanto, devido ao processo extremamente lento de revisão do Chrome Web Store, a mudança de nome não foi aprovada em 7 dias — está temporariamente indisponível no Chrome Web Store.
+  </div>
+</div>
 
 <div class="vp-doc" style="text-align: center; margin: 4rem auto 3rem; max-width: 780px; padding: 0 16px;">
   <h3 style="margin: 0 0 8px; font-weight: 600; font-size: 1.05em;">Cada instalação é um voto de confiança</h3>
@@ -96,7 +111,7 @@ features:
   </a>
   <p style="margin-top: 24px; font-size: 1.05em; opacity: 0.86;">✨ Estamos ao vivo no Product Hunt! Adoraríamos ouvir as suas opiniões e feedback. ❤️</p>
   <div style="margin-top: 12px; display: flex; justify-content: center;">
-    <a href="https://www.producthunt.com/posts/gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Gemini Voyager no Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
+    <a href="https://www.producthunt.com/posts/gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager no Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
   </div>
 </div>
 

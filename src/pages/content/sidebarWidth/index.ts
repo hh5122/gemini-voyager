@@ -228,18 +228,41 @@ function setupSearchButtonHitTestDebug(): void {
   );
 }
 
+const ENABLED_KEY = 'gvSidebarWidthEnabled';
+
 /** Initialize and start the sidebar width adjuster */
 export function startSidebarWidthAdjuster(): void {
   let currentWidthValue = DEFAULT_PX;
+  let enabled = false;
   setupSearchButtonHitTestDebug();
 
-  // 1) Read initial width
+  // 1) Read initial state — request keys without defaults so we can distinguish
+  // "key never existed" (upgrade) from "explicitly set to false"
   try {
-    chrome.storage?.sync?.get({ geminiSidebarWidth: DEFAULT_PX }, (res) => {
-      const w = Number(res?.geminiSidebarWidth);
+    chrome.storage?.sync?.get(['geminiSidebarWidth', ENABLED_KEY], (res) => {
+      const rawW = res?.geminiSidebarWidth;
+      const w = Number.isFinite(Number(rawW)) ? Number(rawW) : DEFAULT_PX;
       const { normalized } = normalizeWidth(w);
       currentWidthValue = normalized;
-      applyWidth(currentWidthValue);
+
+      const enabledRaw = res?.[ENABLED_KEY];
+      if (enabledRaw === undefined) {
+        // Upgrade path: auto-enable if user had previously customized
+        const isCustomized =
+          rawW !== undefined && normalizeWidth(Number(rawW)).normalized !== DEFAULT_PX;
+        enabled = isCustomized;
+        if (enabled) {
+          try {
+            chrome.storage?.sync?.set({ [ENABLED_KEY]: true });
+          } catch {}
+        }
+      } else {
+        enabled = enabledRaw === true;
+      }
+
+      if (enabled) {
+        applyWidth(currentWidthValue);
+      }
 
       if (Number.isFinite(w) && w !== normalized) {
         try {
@@ -250,20 +273,31 @@ export function startSidebarWidthAdjuster(): void {
       }
     });
   } catch (e) {
-    // Fallback: inject default value if no storage permission
     console.error('[Gemini Voyager] Failed to get sidebar width from storage:', e);
-    applyWidth(currentWidthValue);
   }
 
   // 2) Respond to storage changes (from Popup slider adjustment)
   try {
     chrome.storage?.onChanged?.addListener((changes, area) => {
-      if (area === 'sync' && changes.geminiSidebarWidth) {
+      if (area !== 'sync') return;
+
+      if (changes[ENABLED_KEY]) {
+        enabled = changes[ENABLED_KEY].newValue === true;
+        if (enabled) {
+          applyWidth(currentWidthValue);
+        } else {
+          removeStyles();
+        }
+      }
+
+      if (changes.geminiSidebarWidth) {
         const w = Number(changes.geminiSidebarWidth.newValue);
         if (Number.isFinite(w)) {
           const { normalized } = normalizeWidth(w);
           currentWidthValue = normalized;
-          applyWidth(currentWidthValue);
+          if (enabled) {
+            applyWidth(currentWidthValue);
+          }
 
           if (normalized !== w) {
             try {

@@ -6,7 +6,7 @@
 
 Escolha o seu caminho.
 
-> ⚠️ Nota: O Gestor de Prompts é a única funcionalidade que suporta Gemini para Enterprise.
+> ⚠️ Nota: O Gestor de Prompts é a única funcionalidade que suporta Gemini™ para Enterprise.
 
 ## 1. Lojas de Extensões (Recomendado)
 
@@ -15,6 +15,10 @@ A forma mais simples de começar. As atualizações são automáticas.
 **Chrome / Brave / Opera / Vivaldi:**
 
 [<img src="https://img.shields.io/badge/Chrome_Web_Store-Download-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Instalar da Chrome Web Store" height="40"/>](https://chromewebstore.google.com/detail/kjdpnimcnfinmilocccippmododhceol?utm_source=github&utm_medium=docs&utm_campaign=organic_growth&utm_content=pt)
+
+::: warning ⚠️ Chrome Web Store temporariamente indisponível
+A extensão foi oficialmente renomeada para **Voyager** devido a problemas de marcas registadas. A atualização do nome no Chrome Web Store está pendente de revisão. Veja [esta publicação](https://x.com/Nag1ovo/status/2031561180213313944) para mais detalhes. Use **Edge / Firefox** ou a **instalação manual** entretanto.
+:::
 
 **Microsoft Edge:**
 

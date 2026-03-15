@@ -2,7 +2,7 @@
 
 **不同次元，丝滑共享**
 
-在网页端推演逻辑，在 IDE 里落地代码。 Gemini Voyager 打通次元壁，让你的 IDE 瞬间拥有网页端的“思维过程”。
+在网页端推演逻辑，在 IDE 里落地代码。 Voyager 打通次元壁，让你的 IDE 瞬间拥有网页端的“思维过程”。
 
 ## 告别反复横跳
 
@@ -16,7 +16,7 @@
 
    ![CoBridge扩展](/assets/CoBridge-extension.png)
 
-   安装完成后，点击右侧图标并启动服务器。
+   安装完成后，**打开任意工作目录**，点击右侧图标并启动服务器。
    ![CoBridge服务器开启](/assets/CoBridge-on.png)
 
 2. **握手对接**：
@@ -31,7 +31,7 @@
 
 ## 落地生根
 
-同步完成后，你的 IDE 根目录会多出一个 `.cobridge/AI_CONTEXT.md`。 无论是 Trae、Cursor 还是 Copilot，它们会通过各自的 Rule 文件自动读取这份“记忆”。
+同步完成后，你的 IDE 工作目录会多出一个 `.cobridge/AI_CONTEXT.md`。 无论是 Trae、Cursor 还是 Copilot，它们会通过各自的 Rule 文件自动读取这份“记忆”。
 
 ```
 your-project/

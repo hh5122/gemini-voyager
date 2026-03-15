@@ -6,7 +6,7 @@
 
 Выберите способ установки.
 
-> ⚠️ Примечание: Менеджер промптов — единственная функция, поддерживающая Gemini для Enterprise.
+> ⚠️ Примечание: Менеджер промптов — единственная функция, поддерживающая Gemini™ для Enterprise.
 
 ## 1. Магазины расширений (Рекомендуется)
 
@@ -15,6 +15,10 @@
 **Chrome / Brave / Opera / Vivaldi:**
 
 [<img src="https://img.shields.io/badge/Chrome_Web_Store-Download-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Установить из Chrome Web Store" height="40"/>](https://chromewebstore.google.com/detail/kjdpnimcnfinmilocccippmododhceol?utm_source=github&utm_medium=docs&utm_campaign=organic_growth&utm_content=ru)
+
+::: warning ⚠️ Chrome Web Store временно недоступен
+Расширение официально переименовано в **Voyager** из-за проблем с товарными знаками. Обновление названия в Chrome Web Store ожидает проверки. Подробности в [этом посте](https://x.com/Nag1ovo/status/2031561180213313944). Пока что используйте **Edge / Firefox** или **ручную установку**.
+:::
 
 **Microsoft Edge:**
 

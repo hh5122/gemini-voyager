@@ -1,6 +1,6 @@
 <div align="center">
   <img src="../docs/public/assets/promotion/Promo-Banner-cn.png" alt="promotion"/>
-  <h3>打造属于你的 Gemini 体验 ✨</h3>
+  <h3>打造属于你的 Gemini™ 体验 ✨</h3>
   <p>
     优雅的时间轴导航、文件夹管理对话、构建专属提示词库。<br>
     <b>这是 Google Gemini 缺失的那块拼图。</b>
@@ -52,26 +52,29 @@
 
 <p align="center">
   <a href="https://x.com/Nag1ovo/status/2024507762483277927?s=20" target="_blank">
-    <img src="../docs/public/assets/x-recommendation.png" alt="KOL Recommendation" width="800">
+    <img src="../docs/public/assets/x-recommendation.png" alt="KOL Recommendation" width="500">
   </a>
   <br>
   <b>🎉 感谢知名科技圈大 V 与社区的强烈推荐！</b>
 </p>
 
+> [!IMPORTANT]
+> **改名公告**：由于商标版权问题，本插件已正式改名为 **Voyager**。但由于谷歌插件商店审核速度奇慢，七天内未能完成名称更新审核，暂时无法在 Chrome Web Store 使用。
+
 > [!NOTE]
-> 如果 Gemini Voyager 帮到了你，欢迎分享到 X、即刻、小红书、Linux.do、V2EX 等等，也欢迎推荐给海外 KOL。每一次分享都能让更多人看到这个项目，从而改善 Gemini 的使用体验。谢谢。
+> 如果 Voyager 帮到了你，欢迎分享到 X、即刻、小红书、Linux.do、V2EX 等等，也欢迎推荐给海外 KOL。每一次分享都能让更多人看到这个项目，从而改善 Gemini 的使用体验。谢谢。
 
 ---
 
-## 👋 为什么开发 Gemini Voyager？
+## 👋 为什么开发 Voyager？
 
 我们都很喜欢 Gemini，但有时候总觉得它少了一点"秩序感"。
 
-这就是我们开发 **Gemini Voyager** 的初衷。它不仅仅是一个工具，更是一个能帮你把 AI 对话变得井井有条、触手可及的得力助手。无论你是需要处理大量对话的研究人员，还是喜欢收藏代码片段的开发者，亦或是单纯的整理控，Voyager 都是为你准备的。
+这就是我们开发 **Voyager** 的初衷。它不仅仅是一个工具，更是一个能帮你把 AI 对话变得井井有条、触手可及的得力助手。无论你是需要处理大量对话的研究人员，还是喜欢收藏代码片段的开发者，亦或是单纯的整理控，Voyager 都是为你准备的。
 
 <p align="center">
   <a href="https://x.com/Nag1ovo/status/2024509398601597412?s=20" target="_blank">
-    <img src="../docs/public/assets/try-voyager.png" alt="Try Voyager" width="800">
+    <img src="../docs/public/assets/try-voyager.png" alt="Try Voyager" width="500">
   </a>
   <br>
   <i>在 2 月 18 号 Google Gemini App 导致部分用户历史对话无法访问的问题中，Voyager 的用户仍然能够在其文件夹中看到被保存下来的对话。</i>
@@ -88,6 +91,7 @@
 - **💡 [提示词库](https://voyager.nagi.fun/guide/prompts)**: 跨平台同步提示词，支持 Gemini、AI Studio 及 [自定义网站](https://voyager.nagi.fun/guide/custom-websites)。
 - **☁️ [云同步](https://voyager.nagi.fun/guide/cloud-sync)**: 支持将文件夹和提示词库同步到 Google Drive。
 - **📐 公式复制**: 一键复制 LaTeX 和 MathML (Word) 源码。
+- **🌦️ 视觉特效**: 在设置面板里一键切换 **飘雪**、**电影感雨滴** 或 **樱花飘落**，给页面增加季节氛围。
 
 ### ✨ Gemini 专属增强
 
@@ -106,6 +110,12 @@
   - **[默认模型](https://voyager.nagi.fun/guide/default-model)**: 为新对话设置默认选中的模型。
   - **[隐藏最近项目](https://voyager.nagi.fun/guide/recents-hider)**: 隐藏侧边栏的“最近”列表，减少干扰。
   - **隐藏升级提醒**: 自动隐藏 Gemini 侧边栏和模型切换菜单中的“升级到 Google AI Ultra”按钮（默认开启）。
+
+### 🎨 个性化体验
+
+- 点击插件图标，在设置中的 **视觉特效** 里可切换 `关闭`、`飘雪`、`樱花`、`雨`。
+- 特效以轻量全屏覆盖层呈现，不会阻挡页面交互。
+- 切换特效或关闭时，粒子会自然退场，不会突兀消失。
 
 ---
 
@@ -149,7 +159,7 @@
   </a>
 </div>
 
-如果 Gemini Voyager 提升了你的体验，欢迎请我喝杯咖啡。赞助者将被列入致谢名单。❤️
+如果 Voyager 提升了你的体验，欢迎请我喝杯咖啡。赞助者将被列入致谢名单。❤️
 
 <div align="center">
   <a href="https://www.buymeacoffee.com/Nag1ovo" target="_blank">
@@ -186,9 +196,9 @@
 
 ### 🎙️ 特别推荐: Typeless
 
-我非常推荐 **[Typeless (typeless.com)](https://www.typeless.com/refer?code=MZRYZP1)**，一款 AI 语音转文字工具。我在开发过程中一直在使用它，极大地提升了我的工作效率。
+我非常推荐 **[Typeless (typeless.com)](https://www.typeless.com/?via=gemini-voyager)**，一款 AI 语音转文字工具。我在开发过程中一直在使用它，极大地提升了我的工作效率。
 
-> 🎁 **[点击我的邀请链接](https://www.typeless.com/refer?code=MZRYZP1)**（邀请码 **`MZRYZP1`**）可获得 **5 美元免费额度**。这也是支持本项目的一种免费方式！❤️
+> 🎁 **[点击我的邀请链接](https://www.typeless.com/?via=gemini-voyager)**（邀请码 _`gemini-voyager`_）可获得 **5 美元免费额度**。这也是支持本项目的一种免费方式！❤️
 
 ---
 
@@ -249,7 +259,15 @@ bun run build:all
 
 </details>
 
-感谢你让 Gemini Voyager 变得更好！❤️
+感谢你让 Voyager 变得更好！❤️
+
+### ❤️ 特别感谢
+
+特别感谢所有为 Voyager 做出贡献的贡献者们 ❤️
+
+<a href="https://github.com/Nagi-ovo/gemini-voyager/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Nagi-ovo/gemini-voyager&max=200&columns=14" />
+</a>
 
 ---
 
@@ -257,7 +275,11 @@ bun run build:all
 
 - **[DeepSeek Voyager](https://github.com/Azurboy/deepseek-voyager)** - 为 DeepSeek 适配的 Fork 版本。
 
+- **[claude-nexus](https://github.com/Qiuner/claude-nexus)** - 受 Voyager 启发的 Claude.ai 增强扩展，提供时间线导航、文件夹管理、提示词库等功能，并与 Voyager 的提示词导入/导出完全兼容！
+
 - **[ChatGPT Conversation Timeline](https://github.com/Reborn14/chatgpt-conversation-timeline)** - 本项目的灵感来源。
+
+- **[Ophel Atlas](https://github.com/urzeye/ophel)** - 将 AI 对话转化为有组织、可搜索文档的浏览器扩展，支持自动生成大纲、对话管理和提示词库，兼容多个 AI 平台。
 
 ---
 

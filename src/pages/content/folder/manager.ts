@@ -720,8 +720,9 @@ export class FolderManager {
     const filteredRootConversations = this.filterConversationsByCurrentUser(rootConversations);
     if (filteredRootConversations.length > 0) {
       const sortedRootConversations = this.sortConversations(filteredRootConversations);
-      sortedRootConversations.forEach((conv) => {
+      sortedRootConversations.forEach((conv, i) => {
         const convEl = this.createConversationElement(conv, ROOT_CONVERSATIONS_ID, 0);
+        this.setupConversationReorderZone(convEl, ROOT_CONVERSATIONS_ID, i);
         list.appendChild(convEl);
       });
     }
@@ -729,12 +730,16 @@ export class FolderManager {
     // Render root level folders (sorted)
     const rootFolders = this.data.folders.filter((f) => f.parentId === null);
     const sortedRootFolders = this.sortFolders(rootFolders);
+    let rootFolderIndex = 0;
+    list.appendChild(this.createReorderGap('__root__', 'folder', 0));
     sortedRootFolders.forEach((folder) => {
       // Filter out empty folders if "Show current user only" is enabled
       if (!this.hasVisibleContent(folder.id)) return;
 
       const folderElement = this.createFolderElement(folder);
       list.appendChild(folderElement);
+      rootFolderIndex++;
+      list.appendChild(this.createReorderGap('__root__', 'folder', rootFolderIndex));
     });
 
     // If no folders and no root conversations, show empty state placeholder
@@ -846,20 +851,27 @@ export class FolderManager {
       const conversations = this.data.folderContents[folder.id] || [];
       const filteredConversations = this.filterConversationsByCurrentUser(conversations);
       const sortedConversations = this.sortConversations(filteredConversations);
-      sortedConversations.forEach((conv) => {
+      sortedConversations.forEach((conv, i) => {
         const convEl = this.createConversationElement(conv, folder.id, level + 1);
+        this.setupConversationReorderZone(convEl, folder.id, i);
         content.appendChild(convEl);
       });
 
       // Render subfolders (sorted)
       const subfolders = this.data.folders.filter((f) => f.parentId === folder.id);
       const sortedSubfolders = this.sortFolders(subfolders);
+      let subfolderIndex = 0;
+      if (sortedSubfolders.length > 0) {
+        content.appendChild(this.createReorderGap(folder.id, 'folder', 0));
+      }
       sortedSubfolders.forEach((subfolder) => {
         // Filter out empty folders if "Show current user only" is enabled
         if (!this.hasVisibleContent(subfolder.id)) return;
 
         const subfolderEl = this.createFolderElement(subfolder, level + 1);
         content.appendChild(subfolderEl);
+        subfolderIndex++;
+        content.appendChild(this.createReorderGap(folder.id, 'folder', subfolderIndex));
       });
 
       folderEl.appendChild(content);
@@ -946,6 +958,7 @@ export class FolderManager {
         conversations: selectedConvs,
         sourceFolderId: folderId, // Track where they're being dragged from
       };
+      e.dataTransfer!.effectAllowed = 'move';
       e.dataTransfer!.setData('application/json', JSON.stringify(dragData));
 
       // Apply opacity to all selected conversations
@@ -1104,11 +1117,19 @@ export class FolderManager {
     element.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.stopPropagation(); // Prevent root drop zone from also highlighting
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
       element.classList.add('gv-folder-dragover');
     });
 
-    element.addEventListener('dragleave', () => {
-      element.classList.remove('gv-folder-dragover');
+    element.addEventListener('dragleave', (e) => {
+      // Only remove highlight when cursor truly leaves the element (not just entering a child)
+      const rect = element.getBoundingClientRect();
+      const x = (e as DragEvent).clientX;
+      const y = (e as DragEvent).clientY;
+
+      if (x <= rect.left || x >= rect.right || y <= rect.top || y >= rect.bottom) {
+        element.classList.remove('gv-folder-dragover');
+      }
     });
 
     element.addEventListener('drop', (e) => {
@@ -1166,6 +1187,7 @@ export class FolderManager {
 
       e.preventDefault();
       e.stopPropagation(); // Prevent parent handlers from firing
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
       element.classList.add('gv-folder-list-dragover');
     });
 
@@ -1311,7 +1333,9 @@ export class FolderManager {
         title: folder.name,
       };
 
-      (e as DragEvent).dataTransfer?.setData('application/json', JSON.stringify(dragData));
+      const dt = (e as DragEvent).dataTransfer;
+      if (dt) dt.effectAllowed = 'move';
+      dt?.setData('application/json', JSON.stringify(dragData));
       element.style.opacity = '0.5';
 
       this.debug(
@@ -1457,6 +1481,9 @@ export class FolderManager {
 
       // Extract URL and conversation metadata together
       const conversationData = this.extractConversationData(element);
+
+      // Restrict to move-only to prevent Chrome from triggering split-screen/tab tiling
+      if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
 
       // If this conversation is not selected, select it exclusively
       if (!this.selectedConversations.has(conversationId)) {
@@ -1666,30 +1693,37 @@ export class FolderManager {
       return { url: window.location.href, isGem: false };
     }
 
-    const currentPath = window.location.pathname;
-
-    // Preserve user account number (e.g., /u/1/)
-    const userMatch = currentPath.match(/\/u\/(\d+)\//);
-
-    // Build URL with user context preserved
-    let url = window.location.origin;
-    if (userMatch) {
-      url += `/u/${userMatch[1]}`;
-    }
-
-    // Always use /app/{id} URL
-    // Gemini will auto-redirect to /gem/{gem-id}/{id} if it's a Gem conversation
-    // We'll detect and update the gemId after navigation completes
-    url += `/app/${hexId}`;
-
-    // Also preserve URL parameters
+    const origin = window.location.origin;
     const currentUrl = new URL(window.location.href);
     const searchParams = currentUrl.searchParams.toString();
+
+    let url: string;
+
+    if (this.accountIsolationEnabled) {
+      // In hard isolation mode, intentionally do not persist the /u/{num} account index;
+      // only store the path that is intrinsic to the conversation itself.
+      // At navigation time we rebuild the correct /u/{num} segment based on the
+      // current window/account context, so that URLs stay valid even if the
+      // account index changes (e.g. saved with /u/1, later browsing under /u/2).
+      url = `${origin}/app/${hexId}`;
+    } else {
+      // Backward-compatible behavior: preserve the current /u/{num} segment
+      // when hard isolation is disabled, matching legacy URL structure.
+      const currentPath = window.location.pathname;
+      const userMatch = currentPath.match(/\/u\/(\d+)\//);
+
+      if (userMatch) {
+        url = `${origin}/u/${userMatch[1]}/app/${hexId}`;
+      } else {
+        url = `${origin}/app/${hexId}`;
+      }
+    }
+
     if (searchParams) {
       url += `?${searchParams}`;
     }
 
-    this.debug('Built URL:', url);
+    this.debug('Built conversation URL:', url);
     return { url, isGem: false, gemId: undefined };
   }
 
@@ -2012,11 +2046,15 @@ export class FolderManager {
         return;
       }
 
+      const maxSortIndex = this.data.folders
+        .filter((f) => f.parentId === parentId)
+        .reduce((max, f) => Math.max(max, f.sortIndex ?? -1), -1);
       const folder: Folder = {
         id: this.generateId(),
         name,
         parentId,
         isExpanded: true,
+        sortIndex: maxSortIndex + 1,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
@@ -2258,7 +2296,12 @@ export class FolderManager {
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
 
-      // Within the same pinned state, sort by name using localized comparison
+      // Within the same pinned state, use sortIndex if both have one
+      const aIdx = a.sortIndex ?? -1;
+      const bIdx = b.sortIndex ?? -1;
+      if (aIdx >= 0 && bIdx >= 0) return aIdx - bIdx;
+
+      // Fall back to name-based sort
       return a.name.localeCompare(b.name, undefined, {
         numeric: true,
         sensitivity: 'base',
@@ -2268,6 +2311,357 @@ export class FolderManager {
 
   private sortConversations(conversations: ConversationReference[]): ConversationReference[] {
     return sortConversationsByPriority(conversations);
+  }
+
+  /**
+   * Add reorder capability to a conversation element using top/bottom half detection.
+   * When dragging over the top half, an indicator line appears above; bottom half → below.
+   */
+  private setupConversationReorderZone(
+    convEl: HTMLElement,
+    folderId: string,
+    sortedIndex: number,
+  ): void {
+    convEl.addEventListener('dragover', (e) => {
+      const data = e.dataTransfer?.types.includes('application/json');
+      if (!data) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+
+      const rect = convEl.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      const isTopHalf = e.clientY < midY;
+
+      convEl.classList.remove('gv-reorder-above', 'gv-reorder-below');
+      convEl.classList.add(isTopHalf ? 'gv-reorder-above' : 'gv-reorder-below');
+    });
+
+    convEl.addEventListener('dragleave', (e) => {
+      // Only remove if truly leaving the element (not entering a child)
+      const related = e.relatedTarget as Node | null;
+      if (!related || !convEl.contains(related)) {
+        convEl.classList.remove('gv-reorder-above', 'gv-reorder-below');
+      }
+    });
+
+    convEl.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const isAbove = convEl.classList.contains('gv-reorder-above');
+      convEl.classList.remove('gv-reorder-above', 'gv-reorder-below');
+
+      const rawData = e.dataTransfer?.getData('application/json');
+      if (!rawData) return;
+
+      try {
+        const dragData: DragData = JSON.parse(rawData);
+        if (dragData.type !== 'conversation') return;
+
+        // Restore opacity
+        this.selectedConversations.forEach((id) => {
+          const el = this.findConversationElement(id);
+          if (el) el.style.opacity = '1';
+        });
+
+        const insertIndex = isAbove ? sortedIndex : sortedIndex + 1;
+        const convs = dragData.conversations ?? [];
+        const singleId = dragData.conversationId;
+        const sourceFolderId = dragData.sourceFolderId;
+
+        // If conversation(s) are from outside any folder (native sidebar drag),
+        // add them to the folder data first so reorderOrMoveConversations can find them
+        if (!sourceFolderId) {
+          this.ensureConversationsInFolder(folderId, dragData);
+        }
+
+        const effectiveSource = sourceFolderId ?? folderId;
+
+        if (convs.length > 0) {
+          this.reorderOrMoveConversations(
+            convs.map((c) => c.conversationId),
+            effectiveSource,
+            folderId,
+            insertIndex,
+          );
+        } else if (singleId) {
+          this.reorderOrMoveConversations([singleId], effectiveSource, folderId, insertIndex);
+        }
+
+        this.exitMultiSelectMode();
+      } catch (error) {
+        console.error('[FolderManager] Conversation reorder drop error:', error);
+      }
+    });
+  }
+
+  /**
+   * Create a thin drop zone between items for drag-and-drop reordering.
+   * When an item is dragged over the gap, it expands and shows a blue indicator line.
+   * On drop, it reorders the item to the target position.
+   */
+  private createReorderGap(
+    parentId: string,
+    itemType: 'folder' | 'conversation',
+    insertIndex: number,
+  ): HTMLElement {
+    const gap = document.createElement('div');
+    gap.className = 'gv-reorder-gap';
+    gap.dataset.parentId = parentId;
+    gap.dataset.itemType = itemType;
+    gap.dataset.insertIndex = insertIndex.toString();
+
+    gap.addEventListener('dragover', (e) => {
+      const data = e.dataTransfer?.types.includes('application/json');
+      if (!data) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+      gap.classList.add('gv-reorder-gap-active');
+    });
+
+    gap.addEventListener('dragleave', () => {
+      gap.classList.remove('gv-reorder-gap-active');
+    });
+
+    gap.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      gap.classList.remove('gv-reorder-gap-active');
+
+      const rawData = e.dataTransfer?.getData('application/json');
+      if (!rawData) return;
+
+      try {
+        const dragData: DragData = JSON.parse(rawData);
+
+        // Restore opacity for selected conversations
+        this.selectedConversations.forEach((id) => {
+          const el = this.findConversationElement(id);
+          if (el) el.style.opacity = '1';
+        });
+
+        if (itemType === 'folder' && dragData.type === 'folder' && dragData.folderId) {
+          this.reorderFolder(dragData.folderId, parentId, insertIndex);
+        } else if (itemType === 'conversation' && dragData.type === 'conversation') {
+          const convs = dragData.conversations ?? [];
+          const singleId = dragData.conversationId;
+          const sourceFolderId = dragData.sourceFolderId;
+
+          // If from outside any folder, add to folder data first
+          if (!sourceFolderId) {
+            this.ensureConversationsInFolder(parentId, dragData);
+          }
+
+          const effectiveSource = sourceFolderId ?? parentId;
+
+          if (convs.length > 0) {
+            this.reorderOrMoveConversations(
+              convs.map((c) => c.conversationId),
+              effectiveSource,
+              parentId,
+              insertIndex,
+            );
+          } else if (singleId) {
+            this.reorderOrMoveConversations([singleId], effectiveSource, parentId, insertIndex);
+          }
+        }
+
+        this.exitMultiSelectMode();
+      } catch (error) {
+        console.error('[FolderManager] Reorder drop error:', error);
+      }
+    });
+
+    return gap;
+  }
+
+  /**
+   * Reorder a folder within its parent (or move to a new parent at a specific position).
+   */
+  private reorderFolder(folderId: string, targetParentId: string, insertIndex: number): void {
+    const folder = this.data.folders.find((f) => f.id === folderId);
+    if (!folder) return;
+
+    const targetParent = targetParentId === '__root__' ? null : targetParentId;
+    const sourceParent = folder.parentId;
+
+    // Prevent dropping onto itself or descendants
+    if (folderId === targetParentId) return;
+    if (targetParent && this.isFolderDescendant(targetParentId, folderId)) return;
+
+    // Move to new parent if different
+    if (sourceParent !== targetParent) {
+      folder.parentId = targetParent;
+      folder.updatedAt = Date.now();
+    }
+
+    // Get siblings in target parent (same pinned group)
+    const siblings = this.data.folders.filter(
+      (f) => f.parentId === targetParent && f.id !== folderId && !!f.pinned === !!folder.pinned,
+    );
+    const sorted = this.sortFolders(siblings);
+
+    // Insert at position and reassign sortIndex
+    sorted.splice(insertIndex, 0, folder);
+    sorted.forEach((f, i) => {
+      f.sortIndex = i;
+    });
+
+    this.saveData();
+    this.refresh();
+  }
+
+  /**
+   * Silently add conversation(s) from dragData into a folder's data (no save/refresh).
+   * Used before reorderOrMoveConversations so the conversations exist in the folder.
+   */
+  private ensureConversationsInFolder(folderId: string, dragData: DragData): void {
+    if (!this.data.folderContents[folderId]) {
+      this.data.folderContents[folderId] = [];
+    }
+
+    const convs = dragData.conversations ?? [];
+    const items: { id: string; title: string; url?: string; isGem?: boolean; gemId?: string }[] =
+      convs.length > 0
+        ? convs.map((c) => ({
+            id: c.conversationId,
+            title: c.title,
+            url: c.url,
+            isGem: c.isGem,
+            gemId: c.gemId,
+          }))
+        : dragData.conversationId
+          ? [
+              {
+                id: dragData.conversationId,
+                title: dragData.title,
+                url: dragData.url,
+                isGem: dragData.isGem,
+                gemId: dragData.gemId,
+              },
+            ]
+          : [];
+
+    let maxSortIndex = this.data.folderContents[folderId].reduce(
+      (max, c) => Math.max(max, c.sortIndex ?? -1),
+      -1,
+    );
+
+    for (const item of items) {
+      const exists = this.data.folderContents[folderId].some((c) => c.conversationId === item.id);
+      if (exists) continue;
+
+      this.data.folderContents[folderId].push({
+        conversationId: item.id,
+        title: item.title,
+        url: item.url ?? '',
+        addedAt: Date.now(),
+        isGem: item.isGem,
+        gemId: item.gemId,
+        sortIndex: ++maxSortIndex,
+      });
+    }
+  }
+
+  /**
+   * Reorder conversations within a folder, or move from one folder to another at a specific position.
+   */
+  private reorderOrMoveConversations(
+    conversationIds: string[],
+    sourceParentId: string,
+    targetParentId: string,
+    insertIndex: number,
+  ): void {
+    if (!this.data.folderContents[targetParentId]) {
+      this.data.folderContents[targetParentId] = [];
+    }
+
+    const movingConvs: ConversationReference[] = [];
+
+    // Deduplicate conversation IDs to prevent duplicates from cross-folder selection
+    const uniqueIds = [...new Set(conversationIds)];
+
+    // Collect conversation references
+    for (const convId of uniqueIds) {
+      const sourceList = this.data.folderContents[sourceParentId];
+      if (!sourceList) continue;
+      const conv = sourceList.find((c) => c.conversationId === convId);
+      if (conv) movingConvs.push(conv);
+    }
+
+    if (movingConvs.length === 0) return;
+
+    // When reordering within the same folder, insertIndex is based on the original
+    // sorted list (which includes the dragged items). After removal, indices shift.
+    // Adjust by subtracting the count of dragged items that were before insertIndex.
+    if (sourceParentId === targetParentId) {
+      const isStarredGroup = movingConvs[0].starred ?? false;
+      const originalSorted = this.sortConversations(
+        (this.data.folderContents[targetParentId] ?? []).filter(
+          (c) => !!c.starred === isStarredGroup,
+        ),
+      );
+      let adjustment = 0;
+      for (const convId of conversationIds) {
+        const origIdx = originalSorted.findIndex((c) => c.conversationId === convId);
+        if (origIdx >= 0 && origIdx < insertIndex) {
+          adjustment++;
+        }
+      }
+      insertIndex -= adjustment;
+    }
+
+    // Remove from source
+    if (this.data.folderContents[sourceParentId]) {
+      const removeSet = new Set(conversationIds);
+      this.data.folderContents[sourceParentId] = this.data.folderContents[sourceParentId].filter(
+        (c) => !removeSet.has(c.conversationId),
+      );
+      // Reassign sortIndex in source if it changed
+      if (sourceParentId !== targetParentId) {
+        const sourceConvs = this.sortConversations(this.data.folderContents[sourceParentId]);
+        sourceConvs.forEach((c, i) => {
+          c.sortIndex = i;
+        });
+      }
+    }
+
+    // Get target starred group info for proper insertion
+    const isStarred = movingConvs[0].starred ?? false;
+    const targetList = this.data.folderContents[targetParentId].filter(
+      (c) => !conversationIds.includes(c.conversationId),
+    );
+    this.data.folderContents[targetParentId] = targetList;
+
+    // Get sorted siblings in the same starred group (dragged items already excluded)
+    const sameGroupSiblings = this.sortConversations(
+      targetList.filter((c) => !!c.starred === isStarred),
+    );
+    const otherGroup = targetList.filter((c) => !!c.starred !== isStarred);
+
+    // Clamp insertIndex to valid range after removal
+    const clampedIndex = Math.min(insertIndex, sameGroupSiblings.length);
+
+    // Insert at position
+    sameGroupSiblings.splice(clampedIndex, 0, ...movingConvs);
+
+    // Reassign sortIndex
+    sameGroupSiblings.forEach((c, i) => {
+      c.sortIndex = i;
+    });
+    otherGroup.forEach((c, i) => {
+      if (c.sortIndex == null) c.sortIndex = i;
+    });
+
+    // Recombine
+    this.data.folderContents[targetParentId] = [...sameGroupSiblings, ...otherGroup];
+
+    this.saveData();
+    this.refresh();
   }
 
   private addConversationToFolder(
@@ -2294,6 +2688,10 @@ export class FolderManager {
       return;
     }
 
+    const maxSortIndex = this.data.folderContents[folderId].reduce(
+      (max, c) => Math.max(max, c.sortIndex ?? -1),
+      -1,
+    );
     const conv: ConversationReference = {
       conversationId: dragData.conversationId!,
       title: dragData.title,
@@ -2301,6 +2699,7 @@ export class FolderManager {
       addedAt: Date.now(),
       isGem: dragData.isGem,
       gemId: dragData.gemId,
+      sortIndex: maxSortIndex + 1,
     };
 
     this.data.folderContents[folderId].push(conv);
@@ -2337,6 +2736,10 @@ export class FolderManager {
 
     let addedCount = 0;
     const conversationsToRemove: string[] = [];
+    let maxSortIndex = this.data.folderContents[folderId].reduce(
+      (max, c) => Math.max(max, c.sortIndex ?? -1),
+      -1,
+    );
 
     conversations.forEach((conv) => {
       // Check if conversation is already in this folder
@@ -2345,10 +2748,12 @@ export class FolderManager {
       );
 
       if (!exists) {
+        maxSortIndex++;
         // Create a copy with updated timestamp
         const newConv: ConversationReference = {
           ...conv,
           addedAt: Date.now(),
+          sortIndex: maxSortIndex,
         };
 
         this.data.folderContents[folderId].push(newConv);
@@ -3336,12 +3741,14 @@ export class FolderManager {
 
   private getSelectedConversationsData(_folderId: string): ConversationReference[] {
     const result: ConversationReference[] = [];
+    const seen = new Set<string>();
 
     // Collect from all folders since selection can span folders
     for (const fId in this.data.folderContents) {
       const conversations = this.data.folderContents[fId];
       conversations.forEach((conv) => {
-        if (this.selectedConversations.has(conv.conversationId)) {
+        if (this.selectedConversations.has(conv.conversationId) && !seen.has(conv.conversationId)) {
+          seen.add(conv.conversationId);
           result.push(conv);
         }
       });
@@ -4744,6 +5151,70 @@ export class FolderManager {
         this.debugWarn(`Initialized missing folderContents for folder: ${folder.name}`);
       }
     });
+
+    // Deduplicate conversations within each folder
+    for (const folderId of Object.keys(this.data.folderContents)) {
+      const convs = this.data.folderContents[folderId];
+      const seen = new Set<string>();
+      const deduped = convs.filter((c) => {
+        if (seen.has(c.conversationId)) return false;
+        seen.add(c.conversationId);
+        return true;
+      });
+      if (deduped.length < convs.length) {
+        this.debugWarn(
+          `Removed ${convs.length - deduped.length} duplicate conversations in folder: ${folderId}`,
+        );
+        this.data.folderContents[folderId] = deduped;
+      }
+    }
+
+    // Ensure all items have sortIndex for manual ordering
+    this.ensureSortIndices();
+  }
+
+  /**
+   * Assign sortIndex to folders and conversations that don't have one yet.
+   * Uses current sort order so existing users see no change on upgrade.
+   */
+  private ensureSortIndices(): void {
+    // Group folders by parent
+    const foldersByParent = new Map<string, Folder[]>();
+    for (const folder of this.data.folders) {
+      const parentKey = folder.parentId ?? '__root__';
+      if (!foldersByParent.has(parentKey)) foldersByParent.set(parentKey, []);
+      foldersByParent.get(parentKey)!.push(folder);
+    }
+
+    // Assign sortIndex to folders missing it, preserving current name-based order
+    for (const siblings of foldersByParent.values()) {
+      const needsIndex = siblings.some((f) => f.sortIndex == null);
+      if (!needsIndex) continue;
+
+      // Sort by current logic (pinned state ignored here — sortIndex is within same pinned group)
+      const sorted = [...siblings].sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
+      );
+      sorted.forEach((folder, i) => {
+        if (folder.sortIndex == null) folder.sortIndex = i;
+      });
+    }
+
+    // Assign sortIndex to conversations missing it, preserving current time-based order
+    for (const [, conversations] of Object.entries(this.data.folderContents)) {
+      const needsIndex = conversations.some((c) => c.sortIndex == null);
+      if (!needsIndex) continue;
+
+      const sorted = [...conversations].sort((a, b) => {
+        const aTime = a.lastOpenedAt ?? a.addedAt ?? 0;
+        const bTime = b.lastOpenedAt ?? b.addedAt ?? 0;
+        return bTime - aTime;
+      });
+      sorted.forEach((conv, i) => {
+        const original = conversations.find((c) => c.conversationId === conv.conversationId);
+        if (original && original.sortIndex == null) original.sortIndex = i;
+      });
+    }
   }
 
   /**
@@ -5476,6 +5947,26 @@ export class FolderManager {
       const pathParts = targetUrl.pathname.split('/');
       const hexId = pathParts[pathParts.length - 1]; // Get the hex ID part
 
+      let effectivePath: string | null = null;
+      let effectiveUrl: string | null = null;
+
+      if (this.accountIsolationEnabled) {
+        // In hard isolation mode, build a navigation URL that matches the
+        // current account context:
+        // - If the current path contains /u/{num}/, reuse that {num}
+        // - Otherwise navigate to /app/{hexId} directly
+        // This prevents us from reusing stale /u/{num} segments from previously
+        // saved URLs when the active account index has changed.
+        const currentPath = window.location.pathname;
+        const currentUserMatch = currentPath.match(/\/u\/(\d+)\//);
+        if (currentUserMatch) {
+          effectivePath = `/u/${currentUserMatch[1]}/app/${hexId}`;
+        } else {
+          effectivePath = `/app/${hexId}`;
+        }
+        effectiveUrl = `${window.location.origin}${effectivePath}${targetUrl.search}`;
+      }
+
       const conversations = document.querySelectorAll('[data-test-id="conversation"]');
       for (const conv of Array.from(conversations)) {
         const jslog = conv.getAttribute('jslog');
@@ -5510,17 +6001,21 @@ export class FolderManager {
       }
 
       // If we can't find the sidebar element, try pushState + popstate
+      const navigationUrl = this.accountIsolationEnabled && effectiveUrl ? effectiveUrl : url;
+      const navigationPath =
+        this.accountIsolationEnabled && effectivePath ? effectivePath : targetUrl.pathname;
+
       this.debug('Sidebar element not found, trying pushState');
-      window.history.pushState({}, '', url);
+      window.history.pushState({}, '', navigationUrl);
       const popStateEvent = new PopStateEvent('popstate', { state: {} });
       window.dispatchEvent(popStateEvent);
       setTimeout(() => this.highlightActiveConversationInFolders(), 0);
 
       // If that doesn't work, fall back to page reload
       setTimeout(() => {
-        if (window.location.pathname !== targetUrl.pathname) {
+        if (window.location.pathname !== navigationPath) {
           this.debug('Falling back to page reload');
-          window.location.href = url;
+          window.location.href = navigationUrl;
         }
       }, 200);
     } catch (error) {
@@ -5805,9 +6300,45 @@ export class FolderManager {
         return true;
       }
 
+      // Handle request to collect all conversations and folder structure for AI organization
+      if (msg.type === 'gv.folders.getStructureForAI') {
+        this.debug('Received AI structure request');
+        const sidebarConversations = this.collectAllSidebarConversations();
+        sendResponse({
+          ok: true,
+          sidebarConversations,
+          folderData: this.data,
+        });
+        return true;
+      }
+
       // Return true for all messages to keep the channel open
       return true;
     });
+  }
+
+  /**
+   * Collect all conversation titles and URLs from the native sidebar DOM
+   */
+  private collectAllSidebarConversations(): Array<{
+    id: string;
+    title: string;
+    url: string;
+  }> {
+    const results: Array<{ id: string; title: string; url: string }> = [];
+    const conversationEls = document.querySelectorAll('[data-test-id="conversation"]');
+
+    for (const el of Array.from(conversationEls)) {
+      const htmlEl = el as HTMLElement;
+      const id = this.extractNativeConversationId(htmlEl);
+      const title = this.extractNativeConversationTitle(htmlEl);
+      const url = this.extractNativeConversationUrl(htmlEl);
+      if (id && title && url) {
+        results.push({ id, title, url });
+      }
+    }
+
+    return results;
   }
 
   // Tooltip methods
@@ -5968,6 +6499,29 @@ export class FolderManager {
     fileInputContainer.appendChild(fileButton);
     fileInputContainer.appendChild(fileName);
 
+    // Paste JSON section
+    const pasteContainer = document.createElement('div');
+    pasteContainer.className = 'gv-folder-import-paste-container';
+
+    const pasteToggleBtn = document.createElement('button');
+    pasteToggleBtn.className = 'gv-folder-import-paste-toggle';
+    pasteToggleBtn.textContent = this.t('folder_import_paste_json');
+    let pasteExpanded = false;
+
+    const pasteArea = document.createElement('textarea');
+    pasteArea.className = 'gv-folder-import-paste-area';
+    pasteArea.placeholder = this.t('folder_import_paste_placeholder');
+    pasteArea.style.display = 'none';
+
+    pasteToggleBtn.addEventListener('click', () => {
+      pasteExpanded = !pasteExpanded;
+      pasteArea.style.display = pasteExpanded ? 'block' : 'none';
+      pasteToggleBtn.classList.toggle('gv-folder-import-paste-toggle-active', pasteExpanded);
+    });
+
+    pasteContainer.appendChild(pasteToggleBtn);
+    pasteContainer.appendChild(pasteArea);
+
     // Buttons
     const buttonsContainer = document.createElement('div');
     buttonsContainer.className = 'gv-folder-dialog-buttons';
@@ -5979,7 +6533,12 @@ export class FolderManager {
       const strategy = (mergeOption.querySelector('input') as HTMLInputElement).checked
         ? 'merge'
         : 'overwrite';
-      await this.handleImport(fileInput, strategy);
+      const pasteText = pasteArea.value.trim();
+      if (pasteText) {
+        await this.handleImportFromText(pasteText, strategy);
+      } else {
+        await this.handleImport(fileInput, strategy);
+      }
       overlay.remove();
     });
 
@@ -5995,6 +6554,7 @@ export class FolderManager {
     dialog.appendChild(dialogTitle);
     dialog.appendChild(strategyContainer);
     dialog.appendChild(fileInputContainer);
+    dialog.appendChild(pasteContainer);
     dialog.appendChild(buttonsContainer);
     overlay.appendChild(dialog);
 
@@ -6121,6 +6681,91 @@ export class FolderManager {
       );
     } finally {
       // Always release the lock, even if an error occurred
+      this.importInProgress = false;
+    }
+  }
+
+  /**
+   * Import folder data from pasted JSON text
+   */
+  private async handleImportFromText(jsonText: string, strategy: ImportStrategy): Promise<void> {
+    if (this.importInProgress) {
+      this.showNotification(
+        this.t('folder_import_in_progress') || 'Import already in progress',
+        'info',
+      );
+      return;
+    }
+
+    this.importInProgress = true;
+
+    try {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(jsonText);
+      } catch {
+        this.showNotification(this.t('folder_import_invalid_format'), 'error');
+        return;
+      }
+
+      if (strategy === 'overwrite') {
+        const confirmed = confirm(this.t('folder_import_confirm_overwrite'));
+        if (!confirmed) return;
+      }
+
+      const validationResult = FolderImportExportService.validatePayload(parsed);
+      if (!validationResult.success) {
+        this.showNotification(
+          this.t('folder_import_invalid_format') + ': ' + validationResult.error.message,
+          'error',
+        );
+        return;
+      }
+
+      const importResult = await FolderImportExportService.importFromPayload(
+        validationResult.data,
+        this.data as unknown as Parameters<typeof FolderImportExportService.importFromPayload>[1],
+        { strategy, createBackup: true },
+      );
+
+      if (!importResult.success) {
+        this.showNotification(
+          this.t('folder_import_error').replace('{error}', String(importResult.error)),
+          'error',
+        );
+        return;
+      }
+
+      this.data = importResult.data.data;
+      this.saveData();
+      this.refresh();
+
+      const stats = importResult.data.stats;
+      let message = this.t('folder_import_success')
+        .replace('{folders}', String(stats.foldersImported))
+        .replace('{conversations}', String(stats.conversationsImported));
+
+      if (
+        strategy === 'merge' &&
+        (stats.duplicatesFoldersSkipped || stats.duplicatesConversationsSkipped)
+      ) {
+        const totalSkipped =
+          (stats.duplicatesFoldersSkipped || 0) + (stats.duplicatesConversationsSkipped || 0);
+        message = this.t('folder_import_success_skipped')
+          .replace('{folders}', String(stats.foldersImported))
+          .replace('{conversations}', String(stats.conversationsImported))
+          .replace('{skipped}', String(totalSkipped));
+      }
+
+      this.showNotification(message, 'success');
+      this.debug('Import from text successful:', stats);
+    } catch (error) {
+      console.error('[FolderManager] Import from text error:', error);
+      this.showNotification(
+        this.t('folder_import_error').replace('{error}', String(error)),
+        'error',
+      );
+    } finally {
       this.importInProgress = false;
     }
   }
@@ -6283,11 +6928,7 @@ export class FolderManager {
       const menuItem = document.createElement('button');
       menuItem.className = 'gv-folder-menu-item';
 
-      // Fix vertical alignment
-      menuItem.style.display = 'flex';
-      menuItem.style.alignItems = 'center';
-
-      menuItem.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" style="font-size: 18px; margin-right: 8px;">${item.icon}</mat-icon>${item.label}`;
+      menuItem.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" style="font-size: 18px; line-height: 1; margin-right: 8px;">${item.icon}</mat-icon>${item.label}`;
       menuItem.addEventListener('click', () => {
         item.action();
         menu.remove();

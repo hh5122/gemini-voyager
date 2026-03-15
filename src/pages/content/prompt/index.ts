@@ -28,6 +28,7 @@ import {
 } from '@/utils/language';
 import type { TranslationKey } from '@/utils/translations';
 
+import { hasUnreadChangelog, openChangelog, showChangelogModalDirect } from '../changelog/index';
 import { createFolderStorageAdapter } from '../folder/storage/FolderStorageAdapter';
 import { getScrollHintState } from './scrollHint';
 
@@ -132,13 +133,6 @@ const normalizeVersionString = (version?: string | null): string | null => {
   if (!version) return null;
   const trimmed = version.trim();
   return trimmed ? trimmed.replace(/^v/i, '') : null;
-};
-
-const toReleaseTag = (version?: string | null): string | null => {
-  if (!version) return null;
-  const trimmed = version.trim();
-  if (!trimmed) return null;
-  return trimmed.startsWith('v') ? trimmed : `v${trimmed}`;
 };
 
 async function readStorage<T>(key: StorageKey, fallback: T): Promise<T> {
@@ -288,19 +282,35 @@ function computeAnchoredPosition(
 export async function startPromptManager(): Promise<{ destroy: () => void }> {
   let marked!: typeof MarkedFn;
   try {
-    // Check if the prompt manager should be hidden
+    // Check if the prompt manager should be hidden & changelog badge state
+    let pmHiddenByUser = false;
+    let changelogBadgeActive = false;
+
     try {
       const result = await browser.storage.sync.get({ gvHidePromptManager: false });
-      if (result?.gvHidePromptManager === true) {
-        pmLogger.info('Prompt Manager is hidden by user settings');
-        // Return a no-op destroy function to maintain interface compatibility
-        return { destroy: () => {} };
-      }
+      pmHiddenByUser = result?.gvHidePromptManager === true;
     } catch (error) {
       pmLogger.warn(
         'Failed to check hide prompt manager setting, continuing with default behavior',
         { error },
       );
+    }
+
+    // Check changelog badge mode
+    try {
+      const [modeRes, unread] = await Promise.all([
+        browser.storage.local.get(StorageKeys.CHANGELOG_NOTIFY_MODE),
+        hasUnreadChangelog(),
+      ]);
+      const notifyMode = modeRes?.[StorageKeys.CHANGELOG_NOTIFY_MODE];
+      changelogBadgeActive = notifyMode === 'badge' && unread;
+    } catch {
+      // Ignore errors
+    }
+
+    if (pmHiddenByUser && !changelogBadgeActive) {
+      pmLogger.info('Prompt Manager is hidden by user settings');
+      return { destroy: () => {} };
     }
 
     // Monkey patch console.warn to suppress KaTeX quirks mode warning in content script
@@ -389,6 +399,9 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       { once: true },
     );
     trigger.appendChild(img);
+    if (changelogBadgeActive) {
+      trigger.classList.add('gv-pm-trigger-new');
+    }
     document.body.appendChild(trigger);
     // Helper: place trigger near a target element (e.g. Gemini FAB touch target)
     function placeTriggerNextToHost(): void {
@@ -475,33 +488,58 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     const titleRow = createEl('div', 'gv-pm-title-row');
     const title = createEl('div', 'gv-pm-title');
     const titleText = document.createElement('span');
-    titleText.textContent = 'Gemini Voyager';
+    titleText.textContent = 'Voyager';
     title.appendChild(titleText);
 
     const manifestVersion = chrome?.runtime?.getManifest?.()?.version;
     const currentVersionNormalized = normalizeVersionString(manifestVersion);
-    const currentReleaseTag = toReleaseTag(manifestVersion);
-    const releaseUrl = manifestVersion
-      ? `https://github.com/Nagi-ovo/gemini-voyager/releases/tag/${currentReleaseTag ?? `v${manifestVersion}`}`
-      : 'https://github.com/Nagi-ovo/gemini-voyager/releases';
-    const versionBadge = document.createElement('a');
+    const versionBadge = document.createElement('span');
     versionBadge.className = 'gv-pm-version';
-    versionBadge.href = releaseUrl;
-    versionBadge.target = '_blank';
-    versionBadge.rel = 'noreferrer';
+    versionBadge.style.cursor = 'pointer';
     versionBadge.title = manifestVersion
       ? `${i18n.t('extensionVersion')} ${manifestVersion}`
       : i18n.t('extensionVersion');
     versionBadge.textContent = manifestVersion ?? '...';
 
+    // Version badge always opens changelog modal
+    versionBadge.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      closePanel();
+      // If badge was active, clear it
+      if (changelogBadgeActive) {
+        changelogBadgeActive = false;
+        trigger.classList.remove('gv-pm-trigger-new');
+        versionBadge.classList.remove('gv-pm-version-outdated');
+        try {
+          await showChangelogModalDirect();
+        } catch {
+          // Ignore
+        }
+        if (pmHiddenByUser) {
+          trigger.style.display = 'none';
+        }
+      } else {
+        try {
+          await openChangelog();
+        } catch {
+          // Ignore
+        }
+      }
+    });
+
+    // Show NEW mark on version badge when changelog badge is active
+    if (changelogBadgeActive) {
+      versionBadge.classList.add('gv-pm-version-outdated');
+    }
+
     titleRow.appendChild(title);
     titleRow.appendChild(versionBadge);
 
+    // Check for newer version on GitHub (visual indicator only, no link)
     (async () => {
       const isSafariBrowser = isSafari();
       const safariUpdateReminderEnabled = isSafariBrowser && shouldShowSafariUpdateReminder();
 
-      // For Safari, the feature flag controls whether reminders are shown for all versions.
       if (isSafariBrowser && !safariUpdateReminderEnabled) return;
 
       const shouldShowUpdateNotification = shouldShowUpdateReminderForCurrentVersion({
@@ -520,13 +558,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
 
       if (!hasUpdate || !latestNormalized) return;
 
-      const latestTag = toReleaseTag(latest);
-      const latestUrl = latestTag
-        ? `https://github.com/Nagi-ovo/gemini-voyager/releases/tag/${latestTag}`
-        : 'https://github.com/Nagi-ovo/gemini-voyager/releases/latest';
-
       versionBadge.classList.add('gv-pm-version-outdated');
-      versionBadge.href = latestUrl;
       versionBadge.title = `${i18n.t('latestVersionLabel')}: v${latestNormalized}`;
     })();
 
@@ -959,7 +991,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
 
     function refreshUITexts(): void {
       // Keep custom icon + label
-      titleText.textContent = 'Gemini Voyager';
+      titleText.textContent = 'Voyager';
       addBtn.textContent = i18n.t('pm_add');
       searchInput.placeholder = i18n.t('pm_search_placeholder');
       importBtn.textContent = i18n.t('pm_import');
@@ -1039,7 +1071,29 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     }
 
     // Events
-    trigger.addEventListener('click', () => {
+    trigger.addEventListener('click', async () => {
+      // Suppress click after a drag gesture
+      if (triggerWasDragged) {
+        triggerWasDragged = false;
+        return;
+      }
+
+      // When changelog badge is active, open changelog modal instead of prompt manager
+      if (changelogBadgeActive) {
+        changelogBadgeActive = false;
+        trigger.classList.remove('gv-pm-trigger-new');
+        try {
+          await showChangelogModalDirect();
+        } catch {
+          // Ignore errors
+        }
+        // If PM was hidden by user, hide trigger again after changelog closes
+        if (pmHiddenByUser) {
+          trigger.style.display = 'none';
+        }
+        return;
+      }
+
       if (open) closePanel();
       else {
         openPanel();
@@ -1105,9 +1159,11 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
 
     // Trigger drag (always draggable)
     let triggerDragStartPos: { x: number; y: number } | null = null;
+    let triggerWasDragged = false;
     trigger.addEventListener('pointerdown', (ev: PointerEvent) => {
       if (typeof ev.button === 'number' && ev.button !== 0) return;
       draggingTrigger = true;
+      triggerWasDragged = false;
       triggerDragStartPos = { x: ev.clientX, y: ev.clientY };
       try {
         trigger.setPointerCapture?.(ev.pointerId);
@@ -1122,6 +1178,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           const dx = Math.abs(ev.clientX - triggerDragStartPos.x);
           const dy = Math.abs(ev.clientY - triggerDragStartPos.y);
           if (dx > 5 || dy > 5) {
+            triggerWasDragged = true;
             const r = parseFloat((trigger.style.right || '').replace('px', '')) || 18;
             const b = parseFloat((trigger.style.bottom || '').replace('px', '')) || 18;
             await writeStorage(STORAGE_KEYS.triggerPos, { right: r, bottom: b });
@@ -1157,8 +1214,9 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       // Handle hide prompt manager setting changes
       if (area === 'sync' && changes?.gvHidePromptManager) {
         const shouldHide = changes.gvHidePromptManager.newValue === true;
+        pmHiddenByUser = shouldHide;
         pmLogger.info('Hide prompt manager setting changed', { shouldHide });
-        if (shouldHide) {
+        if (shouldHide && !changelogBadgeActive) {
           // Hide trigger and panel
           trigger.style.display = 'none';
           panel.classList.add('gv-hidden');
@@ -1167,6 +1225,39 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           // Show trigger
           trigger.style.display = '';
         }
+      }
+      // Handle changelog notify mode changes (dynamic badge update)
+      if (
+        area === 'local' &&
+        (changes[StorageKeys.CHANGELOG_NOTIFY_MODE] ||
+          changes[StorageKeys.CHANGELOG_DISMISSED_VERSION])
+      ) {
+        void (async () => {
+          try {
+            const [modeRes, unread] = await Promise.all([
+              browser.storage.local.get(StorageKeys.CHANGELOG_NOTIFY_MODE),
+              hasUnreadChangelog(),
+            ]);
+            const mode = modeRes?.[StorageKeys.CHANGELOG_NOTIFY_MODE];
+            const shouldBadge = mode === 'badge' && unread;
+
+            if (shouldBadge && !changelogBadgeActive) {
+              changelogBadgeActive = true;
+              trigger.classList.add('gv-pm-trigger-new');
+              trigger.style.display = '';
+              versionBadge.classList.toggle('gv-pm-version-outdated', changelogBadgeActive);
+            } else if (!shouldBadge && changelogBadgeActive) {
+              changelogBadgeActive = false;
+              trigger.classList.remove('gv-pm-trigger-new');
+              versionBadge.classList.toggle('gv-pm-version-outdated', changelogBadgeActive);
+              if (pmHiddenByUser) {
+                trigger.style.display = 'none';
+              }
+            }
+          } catch {
+            // Ignore errors
+          }
+        })();
       }
       // Handle prompt data changes from cloud sync (local storage)
       if (area === 'local' && changes?.gvPromptItems) {
@@ -1246,13 +1337,13 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     );
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const text = (addForm.querySelector('.gv-pm-input-text') as HTMLTextAreaElement).value.trim();
+      const text = (addForm.querySelector('.gv-pm-input-text') as HTMLTextAreaElement).value;
       const tagsRaw = (addForm.querySelector('.gv-pm-input-tags') as HTMLInputElement).value;
       const tags = dedupeTags((tagsRaw || '').split(',').map((s) => s.trim()));
-      if (!text) return;
+      if (!text.trim()) return;
       if (editingId) {
         const dup = items.some(
-          (x) => x.id !== editingId && x.text.trim().toLowerCase() === text.toLowerCase(),
+          (x) => x.id !== editingId && x.text.trim().toLowerCase() === text.trim().toLowerCase(),
         );
         if (dup) {
           setInlineHint(i18n.t('pm_duplicate') || 'Duplicate prompt', 'err');
@@ -1269,7 +1360,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         editingId = null;
       } else {
         // prevent duplicates (case-insensitive, same text)
-        const exists = items.some((x) => x.text.trim().toLowerCase() === text.toLowerCase());
+        const exists = items.some((x) => x.text.trim().toLowerCase() === text.trim().toLowerCase());
         if (exists) {
           setInlineHint(i18n.t('pm_duplicate') || 'Duplicate prompt', 'err');
           return;

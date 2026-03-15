@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: 'Gemini Voyager'
+  name: 'Voyager'
   text: 'نظام التشغيل المفقود لـ Gemini.'
   tagline: 'نحن نحب Gemini. أردنا فقط أن يكون مثالياً.'
   image:
     src: /logo.png
-    alt: شعار Gemini Voyager
+    alt: شعار Voyager
   actions:
     - theme: brand
       text: تحميل
@@ -18,7 +18,7 @@ hero:
 
 teaser:
   title: 'إنه يعمل ببساطة.'
-  description: 'لم نرد بناء مجرد إضافة أخرى. أردنا بناء طريقة أفضل للتفكير.<br>عندما تستخدم Gemini Voyager، تتوقف عن مصارعة الواجهة وتبدأ في الانسياب معها.'
+  description: 'لم نرد بناء مجرد إضافة أخرى. أردنا بناء طريقة أفضل للتفكير.<br>عندما تستخدم Voyager، تتوقف عن مصارعة الواجهة وتبدأ في الانسياب معها.'
   image: '/assets/teaser.png'
   features:
     - title: 'الجدول الزمني'
@@ -47,6 +47,9 @@ features:
   - icon: 💾
     title: تصدير الدردشة
     details: سيادة البيانات. الأرشفة بتنسيقات متعددة لكي لا تضيع المعرفة أبداً.
+  - icon: 🌦️
+    title: التأثيرات البصرية
+    details: اضبط الأجواء كما تريد. بدّل بين الثلج والمطر وبتلات الساكورا من النافذة المنبثقة.
   - icon: 🍌
     title: إزالة العلامة المائية NanoBanana
     details: إزالة العلامة المائية بدون فقدان للجودة. حافظ على لحظات الذكاء الاصطناعي نقية.
@@ -65,10 +68,22 @@ features:
   - icon: 🗑️
     title: الحذف الجماعي
     details: تنظيف بالجملة. حدد محادثات متعددة واحذفها جميعاً دفعة واحدة.
-  # - icon: ⚡️
-  #   title: النموذج الافتراضي
-  #   details: توقف عن تكرار نفسك. التبديل التلقائي إلى نموذجك المفضل في المحادثات الجديدة.
+  - icon: ☁️
+    title: المزامنة السحابية
+    details: دائماً متصل. انسخ المجلدات والمطالبات احتياطياً إلى Google Drive عبر الأجهزة.
+  - icon: ⚡️
+    title: النموذج الافتراضي
+    details: توقف عن تكرار نفسك. التبديل التلقائي إلى نموذجك المفضل في المحادثات الجديدة.
+  - icon: 🔬
+    title: البحث العميق
+    details: افتح الصندوق الأسود. استخرج عمليات التفكير وروابط البحث من جلسات Deep Research.
 ---
+
+<div class="vp-doc" style="margin: 2rem auto 0; max-width: 780px; padding: 0 16px;">
+  <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.6); border-radius: 8px; padding: 12px 16px;" dir="rtl">
+    <strong>⚠️ إشعار تغيير الاسم</strong>: بسبب مخاوف تتعلق بالعلامات التجارية وحقوق النشر، تم تغيير اسم هذا الامتداد رسمياً إلى <strong>Voyager</strong>. ومع ذلك، بسبب البطء الشديد في عملية مراجعة Chrome Web Store، لم يتم الموافقة على تغيير الاسم خلال 7 أيام — وهو غير متاح مؤقتاً على Chrome Web Store.
+  </div>
+</div>
 
 <div class="vp-doc" style="text-align: center; margin: 4rem auto 3rem; max-width: 780px; padding: 0 16px;">
   <h3 style="margin: 0 0 8px; font-weight: 600; font-size: 1.05em;">كل تثبيت هو تصويت بالثقة</h3>
@@ -96,7 +111,7 @@ features:
   </a>
   <p style="margin-top: 24px; font-size: 1.05em; opacity: 0.86;">✨ نحن مباشرون على Product Hunt! نود سماع أفكاركم وملاحظاتكم. ❤️</p>
   <div style="margin-top: 12px; display: flex; justify-content: center;">
-    <a href="https://www.producthunt.com/posts/gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Gemini Voyager على Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
+    <a href="https://www.producthunt.com/posts/gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager على Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
   </div>
 </div>
 

@@ -127,6 +127,105 @@ describe('DefaultModelManager (default model locker)', () => {
     expect(item.querySelector('.gv-default-star-btn')).not.toBeNull();
   });
 
+  it('injects star buttons when menu items use role="menuitem" instead of "menuitemradio"', async () => {
+    const { default: DefaultModelManager } = await import('../modelLocker');
+    await DefaultModelManager.getInstance().init();
+    destroyManager = () => DefaultModelManager.getInstance().destroy();
+
+    const menuPanel = document.createElement('div');
+    menuPanel.className = 'mat-mdc-menu-panel gds-mode-switch-menu';
+    menuPanel.setAttribute('role', 'menu');
+
+    const item = document.createElement('button');
+    item.setAttribute('role', 'menuitem');
+    item.setAttribute('data-mode-id', 'e051ce1aa80aa576');
+    item.classList.add('bard-mode-list-button');
+    item.innerHTML = `
+      <span class="mat-mdc-menu-item-text">
+        <div class="title-and-check">
+          <div class="title-and-description">
+            <div>
+              <span class="gds-label-l">思考</span>
+              <span class="mode-desc gds-body-s">解决复杂问题</span>
+            </div>
+          </div>
+        </div>
+      </span>
+    `;
+    menuPanel.appendChild(item);
+    document.body.appendChild(menuPanel);
+
+    await Promise.resolve();
+    await vi.advanceTimersByTimeAsync(200);
+
+    expect(item.querySelector('.gv-default-star-btn')).not.toBeNull();
+  });
+
+  it('auto-locks model when menu uses role="menuitem" variant', async () => {
+    (chrome.storage.sync.get as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (_keys: unknown, callback: (items: Record<string, unknown>) => void) => {
+        callback({
+          gvDefaultModel: {
+            id: 'e051ce1aa80aa576',
+            name: 'Thinking',
+          },
+        });
+      },
+    );
+
+    history.replaceState({}, '', '/u/0/app?hl=zh');
+
+    const selectorBtn = document.createElement('button');
+    selectorBtn.className = 'input-area-switch-label';
+    selectorBtn.textContent = '快速';
+    selectorBtn.click = vi.fn();
+    document.body.appendChild(selectorBtn);
+
+    const menuPanel = document.createElement('div');
+    menuPanel.className = 'mat-mdc-menu-panel gds-mode-switch-menu';
+    menuPanel.setAttribute('role', 'menu');
+
+    const fastItem = document.createElement('button');
+    fastItem.setAttribute('role', 'menuitem');
+    fastItem.setAttribute('data-mode-id', '56fdd199312815e2');
+    fastItem.classList.add('bard-mode-list-button', 'is-selected');
+    fastItem.innerHTML = `
+      <span class="mat-mdc-menu-item-text">
+        <div class="title-and-description">
+          <div><span class="gds-label-l">快速</span></div>
+        </div>
+      </span>
+    `;
+    fastItem.click = vi.fn();
+
+    const thinkingItem = document.createElement('button');
+    thinkingItem.setAttribute('role', 'menuitem');
+    thinkingItem.setAttribute('data-mode-id', 'e051ce1aa80aa576');
+    thinkingItem.classList.add('bard-mode-list-button');
+    thinkingItem.innerHTML = `
+      <span class="mat-mdc-menu-item-text">
+        <div class="title-and-description">
+          <div><span class="gds-label-l">思考</span></div>
+        </div>
+      </span>
+    `;
+    thinkingItem.click = vi.fn();
+
+    menuPanel.appendChild(fastItem);
+    menuPanel.appendChild(thinkingItem);
+    document.body.appendChild(menuPanel);
+
+    const { default: DefaultModelManager } = await import('../modelLocker');
+    await DefaultModelManager.getInstance().init();
+    destroyManager = () => DefaultModelManager.getInstance().destroy();
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await vi.advanceTimersByTimeAsync(500);
+
+    expect(thinkingItem.click).toHaveBeenCalledTimes(1);
+    expect(fastItem.click).toHaveBeenCalledTimes(0);
+  });
+
   it('locks to Pro without matching "pro" inside "problems" (Thinking description)', async () => {
     (chrome.storage.sync.get as unknown as ReturnType<typeof vi.fn>).mockImplementation(
       (_keys: unknown, callback: (items: Record<string, unknown>) => void) => {
@@ -513,6 +612,90 @@ describe('DefaultModelManager (default model locker)', () => {
 
     // Since Flash is the default model, no click should be triggered
     expect(selectorBtn.click).toHaveBeenCalledTimes(0);
+  });
+
+  it('does not inject star buttons into the settings menu (desktop-settings-menu)', async () => {
+    const { default: DefaultModelManager } = await import('../modelLocker');
+    await DefaultModelManager.getInstance().init();
+    destroyManager = () => DefaultModelManager.getInstance().destroy();
+
+    // Simulate the Gemini settings/profile dropdown (has class desktop-settings-menu)
+    const settingsMenu = document.createElement('div');
+    settingsMenu.className = 'mat-mdc-menu-panel collapsed desktop-settings-menu ia-redesign';
+    settingsMenu.setAttribute('role', 'menu');
+
+    const settingsItem = document.createElement('a');
+    settingsItem.setAttribute('role', 'menuitem');
+    settingsItem.innerHTML = `
+      <span class="mat-mdc-menu-item-text">
+        <div class="menu-entry-with-badge">
+          <span class="gds-label-l">个人使用场景</span>
+        </div>
+      </span>
+    `;
+    settingsMenu.appendChild(settingsItem);
+
+    const themeItem = document.createElement('button');
+    themeItem.setAttribute('role', 'menuitem');
+    themeItem.innerHTML = `
+      <span class="mat-mdc-menu-item-text">
+        <span class="gds-label-l">主题</span>
+      </span>
+    `;
+    settingsMenu.appendChild(themeItem);
+
+    document.body.appendChild(settingsMenu);
+
+    await Promise.resolve();
+    await vi.advanceTimersByTimeAsync(500);
+
+    // Star buttons should NOT be injected into settings menu items
+    expect(settingsItem.querySelector('.gv-default-star-btn')).toBeNull();
+    expect(themeItem.querySelector('.gv-default-star-btn')).toBeNull();
+  });
+
+  it('does not inject star buttons into the theme submenu (menuitemradio without model markers)', async () => {
+    const { default: DefaultModelManager } = await import('../modelLocker');
+    await DefaultModelManager.getInstance().init();
+    destroyManager = () => DefaultModelManager.getInstance().destroy();
+
+    // Simulate the Gemini theme picker submenu (has menuitemradio but no model markers)
+    const themeMenu = document.createElement('div');
+    themeMenu.className = 'mat-mdc-menu-panel';
+    themeMenu.setAttribute('role', 'menu');
+
+    const systemItem = document.createElement('button');
+    systemItem.setAttribute('role', 'menuitemradio');
+    systemItem.setAttribute('aria-checked', 'false');
+    systemItem.innerHTML = `
+      <span class="mat-mdc-menu-item-text">
+        <span class="menu-item-title-with-trailing-component">
+          <span class="gds-label-l">系统</span>
+        </span>
+      </span>
+    `;
+    themeMenu.appendChild(systemItem);
+
+    const darkItem = document.createElement('button');
+    darkItem.setAttribute('role', 'menuitemradio');
+    darkItem.setAttribute('aria-checked', 'true');
+    darkItem.innerHTML = `
+      <span class="mat-mdc-menu-item-text">
+        <span class="menu-item-title-with-trailing-component">
+          <span class="gds-label-l">深色</span>
+        </span>
+      </span>
+    `;
+    themeMenu.appendChild(darkItem);
+
+    document.body.appendChild(themeMenu);
+
+    await Promise.resolve();
+    await vi.advanceTimersByTimeAsync(500);
+
+    // Star buttons should NOT be injected into theme menu items
+    expect(systemItem.querySelector('.gv-default-star-btn')).toBeNull();
+    expect(darkItem.querySelector('.gv-default-star-btn')).toBeNull();
   });
 
   it('stops retrying after consecutive failures when target model is not found', async () => {

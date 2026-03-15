@@ -6,7 +6,7 @@ Customize every pixel.
 ## Cinema Mode
 
 Why view the future through a tiny keyhole?
-Gemini Voyager lets you expand the chat width.
+Voyager lets you expand the chat width.
 
 - **Wide**: 1400px for coding and complex tables.
 - **Focused**: 800px for reading.
@@ -18,6 +18,16 @@ Click the extension icon to access the control center.
 
 - **Scroll Mode**: Natural or classic.
 - **Timeline Position**: Put it where it feels right.
+- **Visual Effects**: Pick `Snow`, `Sakura`, or `Rain` for a seasonal atmosphere.
+
+## Atmosphere
+
+Voyager is not limited to utility tweaks. You can also change the mood of the page.
+
+- **Snow**: Soft drifting flakes for a calm winter feel.
+- **Sakura**: Floating cherry blossom petals for a lighter spring vibe.
+- **Rain**: A cinematic rain overlay with angled streaks and subtle splash ripples.
+- **Smooth switching**: Turning an effect off or switching to another one lets existing particles fade out naturally.
 
 <div style="display: flex; gap: 20px; margin-top: 20px;">
   <div style="flex: 1; text-align: center;">

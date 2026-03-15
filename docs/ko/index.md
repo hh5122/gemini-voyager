@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: 'Gemini Voyager'
+  name: 'Voyager'
   text: 'Gemini를 위한 완벽한 운영체제.'
   tagline: '우리는 Gemini를 사랑합니다. 단지 그것이 완벽해지기를 원했습니다.'
   image:
     src: /logo.png
-    alt: Gemini Voyager 로고
+    alt: Voyager 로고
   actions:
     - theme: brand
       text: 다운로드
@@ -18,7 +18,7 @@ hero:
 
 teaser:
   title: '그냥 작동합니다.'
-  description: '우리는 단순히 또 다른 확장 프로그램을 만들고 싶지 않았습니다. 더 나은 사고 방식을 구축하고 싶었습니다.<br>Gemini Voyager를 사용하면 인터페이스와 싸우는 대신 대화의 흐름에 집중할 수 있습니다.'
+  description: '우리는 단순히 또 다른 확장 프로그램을 만들고 싶지 않았습니다. 더 나은 사고 방식을 구축하고 싶었습니다.<br>Voyager를 사용하면 인터페이스와 싸우는 대신 대화의 흐름에 집중할 수 있습니다.'
   image: '/assets/teaser.png'
   features:
     - title: '타임라인'
@@ -47,6 +47,9 @@ features:
   - icon: 💾
     title: 대화 내보내기
     details: 데이터 주권. 지식이 손실되지 않도록 다양한 형식으로 아카이브하세요.
+  - icon: 🌦️
+    title: 시각 효과
+    details: 분위기를 바꿔보세요. 팝업에서 눈, 비, 벚꽃잎 효과를 전환할 수 있습니다.
   - icon: 🍌
     title: NanoBanana 워터마크 제거
     details: 무손실 워터마크 제거. AI가 만든 순간을 순수하게 유지하세요.
@@ -65,10 +68,22 @@ features:
   - icon: 🗑️
     title: 일괄 삭제
     details: 한꺼번에 정리하세요. 여러 대화를 선택하여 한 번에 삭제하세요.
-  # - icon: ⚡️
-  #   title: 기본 모델
-  #   details: 반복하지 마세요. 새 대화에서 선호하는 모델로 자동 전환합니다.
+  - icon: ☁️
+    title: 클라우드 동기화
+    details: 항상 동기화. 폴더와 프롬프트를 Google Drive에 백업하세요.
+  - icon: ⚡️
+    title: 기본 모델
+    details: 반복하지 마세요. 새 대화에서 선호하는 모델로 자동 전환합니다.
+  - icon: 🔬
+    title: Deep Research
+    details: 사고를 해체하세요. Deep Research 세션에서 연구 과정과 링크를 추출합니다.
 ---
+
+<div class="vp-doc" style="margin: 2rem auto 0; max-width: 780px; padding: 0 16px;">
+  <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.6); border-radius: 8px; padding: 12px 16px;">
+    <strong>⚠️ 이름 변경 안내</strong>: 상표 및 저작권 문제로 인해 이 확장 프로그램이 공식적으로 <strong>Voyager</strong>로 이름이 변경되었습니다. 하지만 Chrome 웹 스토어의 심사 속도가 매우 느려 7일 이내에 이름 변경이 승인되지 않아, 현재 Chrome Web Store에서 일시적으로 이용할 수 없는 상태입니다.
+  </div>
+</div>
 
 <div class="vp-doc" style="text-align: center; margin: 4rem auto 3rem; max-width: 780px; padding: 0 16px;">
   <h3 style="margin: 0 0 8px; font-weight: 600; font-size: 1.05em;">모든 설치는 신뢰의 투표입니다</h3>
@@ -96,7 +111,7 @@ features:
   </a>
   <p style="margin-top: 24px; font-size: 1.05em; opacity: 0.86;">✨ Product Hunt에 출시되었습니다! 여러분의 의견과 피드백을 환영합니다. ❤️</p>
   <div style="margin-top: 12px; display: flex; justify-content: center;">
-    <a href="https://www.producthunt.com/posts/gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Gemini Voyager on Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
+    <a href="https://www.producthunt.com/posts/gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager on Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
   </div>
 </div>
 

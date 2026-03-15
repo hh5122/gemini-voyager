@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "عزز تجربة Gemini: جدول زمني، مجلدات، مطالبات، وتصدير.",
+    "message": "عزز تجربة Gemini™: جدول زمني، مجلدات، مطالبات، وتصدير.",
     "description": "Extension description"
   },
   "scrollMode": {
@@ -52,7 +52,7 @@
     "description": "Language label"
   },
   "pm_title": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Prompt Manager title"
   },
   "pm_add": {
@@ -218,6 +218,10 @@
   "updateNow": {
     "message": "تحديث",
     "description": "CTA to update to latest version"
+  },
+  "safariUpdateNotSynced": {
+    "message": "مصدر التحديث غير متزامن بعد، يرجى المحاولة مرة أخرى بعد بضع ساعات",
+    "description": "Shown on Safari when the DMG file is not yet available on GitHub releases"
   },
   "starProject": {
     "message": "ادعمني ⭐",
@@ -454,6 +458,14 @@
   "folder_import_confirm_overwrite": {
     "message": "سيؤدي هذا إلى استبدال جميع المجلدات الموجودة. سيتم إنشاء نسخة احتياطية. متابعة؟",
     "description": "Overwrite confirmation"
+  },
+  "folder_import_paste_json": {
+    "message": "أو لصق JSON مباشرة",
+    "description": "زر تبديل لإظهار منطقة لصق النص في حوار الاستيراد"
+  },
+  "folder_import_paste_placeholder": {
+    "message": "الصق JSON هنا...",
+    "description": "نص نائب لمنطقة اللصق"
   },
   "export_dialog_title": {
     "message": "تصدير المحادثة",
@@ -987,6 +999,10 @@
     "message": "طي منطقة الإدخال عندما تكون فارغة للحصول على مساحة قراءة أكبر",
     "description": "Input collapse feature hint"
   },
+  "inputCollapseShortcutHint": {
+    "message": "{modifier}+I للتوسيع",
+    "description": "Shortcut hint for expanding collapsed input. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
+  },
   "inputCollapsePlaceholder": {
     "message": "راسل Gemini",
     "description": "Placeholder text shown in collapsed input"
@@ -1000,12 +1016,12 @@
     "description": "Hint text explaining the collapse when not empty feature"
   },
   "ctrlEnterSend": {
-    "message": "Ctrl+Enter للإرسال",
-    "description": "Ctrl+Enter to send toggle label"
+    "message": "{modifier}+Enter للإرسال",
+    "description": "Modifier+Enter to send toggle label. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "ctrlEnterSendHint": {
-    "message": "اضغط Ctrl+Enter لإرسال الرسائل، Enter لإضافة سطر جديد",
-    "description": "Ctrl+Enter to send feature hint"
+    "message": "اضغط {modifier}+Enter لإرسال الرسائل، Enter لإضافة سطر جديد",
+    "description": "Modifier+Enter to send feature hint. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "batch_delete_confirm": {
     "message": "هل أنت متأكد من أنك تريد حذف {count} محادثة؟ لا يمكن التراجع عن هذا الإجراء.",
@@ -1163,6 +1179,14 @@
     "message": "طي الشريط الجانبي تلقائياً عند مغادرة الماوس، وتوسيعه عند الدخول",
     "description": "Auto-hide sidebar feature hint"
   },
+  "sidebarFullHide": {
+    "message": "إخفاء الشريط الجانبي بالكامل",
+    "description": "Fully hide sidebar toggle label"
+  },
+  "sidebarFullHideHint": {
+    "message": "إخفاء الشريط الجانبي المطوي بالكامل، مرر الماوس على الحافة اليسرى لإظهاره",
+    "description": "Fully hide sidebar feature hint"
+  },
   "folderSpacing": {
     "message": "تباعد المجلدات",
     "description": "Folder spacing adjustment label"
@@ -1188,11 +1212,11 @@
     "description": "Wide subfolder indentation label"
   },
   "export_select_mode_select_all": {
-    "message": "Select all",
+    "message": "تحديد الكل",
     "description": "Selection mode select all toggle"
   },
   "export_select_mode_count": {
-    "message": "Selected {count}",
+    "message": "تم تحديد {count}",
     "description": "Selection mode selected message count"
   },
   "export_select_mode_toggle": {
@@ -1259,13 +1283,29 @@
     "message": "المواقع المبحوثة",
     "description": "عنوان قسم المواقع المبحوثة في Deep Research"
   },
-  "snowEffect": {
-    "message": "تأثير الثلج",
-    "description": "Snow effect toggle label"
+  "visualEffect": {
+    "message": "المؤثرات البصرية",
+    "description": "Visual effect selector label"
   },
-  "snowEffectHint": {
-    "message": "اجعل الثلج يتساقط على الصفحة لأجواء شتوية",
-    "description": "Snow effect feature hint"
+  "visualEffectHint": {
+    "message": "أضف أجواء موسمية للصفحة",
+    "description": "Visual effect feature hint"
+  },
+  "visualEffectOff": {
+    "message": "إيقاف",
+    "description": "Visual effect off option"
+  },
+  "visualEffectSnow": {
+    "message": "ثلج",
+    "description": "Visual effect snow option"
+  },
+  "visualEffectSakura": {
+    "message": "ساكورا",
+    "description": "Visual effect sakura option"
+  },
+  "visualEffectRain": {
+    "message": "مطر",
+    "description": "Visual effect rain option"
   },
   "changelog_title": {
     "message": "الجديد",
@@ -1280,20 +1320,32 @@
     "description": "Changelog modal documentation link text"
   },
   "changelog_recommendation": {
-    "message": "إذا ساعدك Voyager، شاركه مع أصدقائك أو على وسائل التواصل الاجتماعي!",
+    "message": "إذا ساعدك Voyager، شاركه مع أصدقائك أو على وسائل التواصل الاجتماعي — لا تنسَ الإشارة إلى المطور!",
     "description": "Changelog modal recommendation message"
+  },
+  "changelog_social_xiaohongshu": {
+    "message": "Xiaohongshu",
+    "description": "Xiaohongshu platform name for social links"
+  },
+  "changelog_social_zhihu": {
+    "message": "Zhihu",
+    "description": "Zhihu platform name for social links"
   },
   "changelog_docs_hint": {
     "message": "التفاصيل في المستندات",
     "description": "Changelog annotation pointing to docs icon"
   },
   "changelog_rate_chrome": {
-    "message": "هل أعجبك Gemini Voyager؟ تقييمك على متجر Chrome الإلكتروني يساعد الآخرين على اكتشافه!",
+    "message": "هل أعجبك Voyager؟ تقييمك على متجر Chrome الإلكتروني يساعد الآخرين على اكتشافه!",
     "description": "Chrome Web Store rating prompt in changelog modal"
   },
   "changelog_rate_chrome_cta": {
     "message": "تقييم الآن",
     "description": "Chrome Web Store rating CTA button text"
+  },
+  "changelog_badge_mode": {
+    "message": "الإشعار عبر شارة NEW على الزر العائم بدلاً من هذه النافذة",
+    "description": "Changelog notification mode toggle label"
   },
   "forkConversation": {
     "message": "Fork",
@@ -1367,12 +1419,47 @@
     "message": "AI Studio",
     "description": "AI Studio platform label."
   },
-  "hideUpsell": {
-    "message": "إخفاء رسائل الترقية",
-    "description": "Hide the \"Upgrade to AI Ultra\" prompt"
+  "enableOnAIStudio": {
+    "message": "التفعيل في AI Studio",
+    "description": "Toggle to enable/disable Voyager on AI Studio"
   },
-  "hideUpsellHint": {
-    "message": "إخفاء زر \"الترقية إلى Google AI Ultra\" في الشريط الجانبي وقائمة النماذج",
-    "description": "Explanation for the upsell hiding feature"
+  "enableOnAIStudioHint": {
+    "message": "أوقف التشغيل لتعطيل ميزات Voyager على AI Studio (يبقى Prompt Manager نشطاً)",
+    "description": "Hint for AI Studio enable toggle"
+  },
+  "export_select_mode_only_user": {
+    "message": "تحديد المستخدم فقط",
+    "description": "Export selection mode: select only user messages"
+  },
+  "export_select_mode_only_ai": {
+    "message": "تحديد الذكاء الاصطناعي فقط",
+    "description": "Export selection mode: select only AI messages"
+  },
+  "aiOrgCopyButton": {
+    "message": "تنظيم AI",
+    "description": "زر لنسخ هيكل المجلدات والمحادثات لتنظيم AI"
+  },
+  "aiOrgCopied": { "message": "تم النسخ!", "description": "تأكيد بعد نسخ موجه تنظيم AI" },
+  "aiOrgError": {
+    "message": "فشل — افتح Gemini أولاً",
+    "description": "خطأ عند فشل نسخ موجه تنظيم AI"
+  },
+  "aiOrgCopyHint": {
+    "message": "ينسخ جميع المحادثات وهيكل المجلدات كموجه. الصقه في Gemini للحصول على خطة مجلدات قابلة للاستيراد.",
+    "description": "نص تلميح أسفل زر نسخ تنظيم AI"
+  },
+  "aiOrgCurrentFolders": {
+    "message": "هيكل المجلدات الحالي",
+    "description": "عنوان في موجه تنظيم AI"
+  },
+  "aiOrgUnfiledConversations": {
+    "message": "محادثات غير مصنفة",
+    "description": "عنوان للمحادثات غير الموجودة في أي مجلد"
+  },
+  "aiOrgEmpty": { "message": "فارغ", "description": "تسمية للمجلدات الفارغة في موجه تنظيم AI" },
+  "aiOrgInstructions": { "message": "التعليمات", "description": "عنوان قسم تعليمات AI" },
+  "aiOrgInstructionsBody": {
+    "message": "بناءً على المحادثات وهيكل المجلدات أعلاه، يرجى إعادة تنظيمها في تسلسل هرمي منطقي للمجلدات. أخرج ملف JSON باستخدام التنسيق أدناه يمكن استيراده مباشرة إلى إضافة Gemini Voyager (استخدم استراتيجية الاستيراد \"دمج\"). احتفظ بالمجلدات المنظمة جيداً الحالية، وأنشئ مجلدات جديدة حسب الحاجة، وانقل المحادثات غير المصنفة إلى مجلدات مناسبة. يحتاج كل مجلد إلى معرف فريد (استخدم سلسلة عشوائية قصيرة)، ويجب أن تحتفظ كل محادثة بـ conversationId و url الأصليين.",
+    "description": "نص التعليمات لـ AI لإنشاء هيكل مجلدات قابل للاستيراد"
   }
 }

@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "타임라인 탐색, 폴더 관리, 프롬프트 저장소 및 채팅 내보내기 기능을 통해 Gemini 환경을 강화하세요.",
+    "message": "타임라인 탐색, 폴더 관리, 프롬프트 저장소 및 채팅 내보내기 기능을 통해 Gemini™ 환경을 강화하세요.",
     "description": "Extension description"
   },
   "scrollMode": {
@@ -52,7 +52,7 @@
     "description": "Language label"
   },
   "pm_title": {
-    "message": "Gemini Voyager",
+    "message": "Voyager",
     "description": "Prompt Manager title"
   },
   "pm_add": {
@@ -218,6 +218,10 @@
   "updateNow": {
     "message": "업데이트",
     "description": "CTA to update to latest version"
+  },
+  "safariUpdateNotSynced": {
+    "message": "업데이트 소스가 아직 동기화되지 않았습니다. 몇 시간 후에 다시 시도해 주세요",
+    "description": "Shown on Safari when the DMG file is not yet available on GitHub releases"
   },
   "starProject": {
     "message": "지원하기 ⭐",
@@ -454,6 +458,14 @@
   "folder_import_confirm_overwrite": {
     "message": "모든 기존 폴더가 대체됩니다. 백업이 생성됩니다. 계속하시겠습니까?",
     "description": "Overwrite confirmation"
+  },
+  "folder_import_paste_json": {
+    "message": "또는 JSON 직접 붙여넣기",
+    "description": "가져오기 대화상자에서 붙여넣기 텍스트 영역을 표시하는 토글 버튼"
+  },
+  "folder_import_paste_placeholder": {
+    "message": "여기에 JSON을 붙여넣으세요...",
+    "description": "붙여넣기 텍스트 영역의 플레이스홀더"
   },
   "export_dialog_title": {
     "message": "대화 내보내기",
@@ -987,6 +999,10 @@
     "message": "입력창이 비어 있을 때 접어서 더 많은 읽기 공간을 확보합니다",
     "description": "Input collapse feature hint"
   },
+  "inputCollapseShortcutHint": {
+    "message": "{modifier}+I 로 펼치기",
+    "description": "Shortcut hint for expanding collapsed input. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
+  },
   "inputCollapsePlaceholder": {
     "message": "Gemini 에게 메시지 보내기",
     "description": "Placeholder text shown in collapsed input"
@@ -1000,12 +1016,12 @@
     "description": "Hint text explaining the collapse when not empty feature"
   },
   "ctrlEnterSend": {
-    "message": "Ctrl+Enter 로 전송",
-    "description": "Ctrl+Enter to send toggle label"
+    "message": "{modifier}+Enter 로 전송",
+    "description": "Modifier+Enter to send toggle label. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "ctrlEnterSendHint": {
-    "message": "Ctrl+Enter 를 눌러 메시지를 전송하고, Enter 로 줄바꿈을 합니다",
-    "description": "Ctrl+Enter to send feature hint"
+    "message": "{modifier}+Enter 를 눌러 메시지를 전송하고, Enter 로 줄바꿈을 합니다",
+    "description": "Modifier+Enter to send feature hint. {modifier} is replaced with ⌘ on macOS and Ctrl on other platforms"
   },
   "batch_delete_confirm": {
     "message": "{count}개의 대화를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
@@ -1163,6 +1179,14 @@
     "message": "마우스가 벗어나면 사이드바를 자동으로 접고, 마우스가 들어오면 펼칩니다",
     "description": "Auto-hide sidebar feature hint"
   },
+  "sidebarFullHide": {
+    "message": "사이드바 완전 숨김",
+    "description": "Fully hide sidebar toggle label"
+  },
+  "sidebarFullHideHint": {
+    "message": "접힌 사이드바를 완전히 숨기고, 왼쪽 가장자리에 마우스를 올려 표시",
+    "description": "Fully hide sidebar feature hint"
+  },
   "folderSpacing": {
     "message": "폴더 간격",
     "description": "Folder spacing adjustment label"
@@ -1259,13 +1283,29 @@
     "message": "조사한 웹사이트",
     "description": "Deep Research 조사한 웹사이트 섹션 헤더"
   },
-  "snowEffect": {
-    "message": "눈 효과",
-    "description": "Snow effect toggle label"
+  "visualEffect": {
+    "message": "시각 효과",
+    "description": "Visual effect selector label"
   },
-  "snowEffectHint": {
-    "message": "페이지에 눈이 내리는 겨울 분위기 연출",
-    "description": "Snow effect feature hint"
+  "visualEffectHint": {
+    "message": "페이지에 계절 분위기 연출",
+    "description": "Visual effect feature hint"
+  },
+  "visualEffectOff": {
+    "message": "끄기",
+    "description": "Visual effect off option"
+  },
+  "visualEffectSnow": {
+    "message": "눈",
+    "description": "Visual effect snow option"
+  },
+  "visualEffectSakura": {
+    "message": "벚꽃",
+    "description": "Visual effect sakura option"
+  },
+  "visualEffectRain": {
+    "message": "비",
+    "description": "Visual effect rain option"
   },
   "changelog_title": {
     "message": "새로운 기능",
@@ -1280,20 +1320,32 @@
     "description": "Changelog modal documentation link text"
   },
   "changelog_recommendation": {
-    "message": "Voyager 가 도움이 되셨다면, 친구나 SNS 에서 공유해 주세요!",
+    "message": "Voyager 가 도움이 되셨다면, 친구나 SNS 에서 공유해 주세요 — 개발자를 태그해 주시면 큰 힘이 됩니다!",
     "description": "Changelog modal recommendation message"
+  },
+  "changelog_social_xiaohongshu": {
+    "message": "Xiaohongshu",
+    "description": "Xiaohongshu platform name for social links"
+  },
+  "changelog_social_zhihu": {
+    "message": "Zhihu",
+    "description": "Zhihu platform name for social links"
   },
   "changelog_docs_hint": {
     "message": "자세한 내용은 문서 참조",
     "description": "Changelog annotation pointing to docs icon"
   },
   "changelog_rate_chrome": {
-    "message": "Gemini Voyager가 마음에 드시나요? Chrome 웹 스토어에 평점을 남겨 더 많은 분들이 발견할 수 있게 해주세요!",
+    "message": "Voyager가 마음에 드시나요? Chrome 웹 스토어에 평점을 남겨 더 많은 분들이 발견할 수 있게 해주세요!",
     "description": "Chrome Web Store rating prompt in changelog modal"
   },
   "changelog_rate_chrome_cta": {
     "message": "평점 주기",
     "description": "Chrome Web Store rating CTA button text"
+  },
+  "changelog_badge_mode": {
+    "message": "이 팝업 대신 플로팅 버튼의 NEW 배지로 알림",
+    "description": "Changelog notification mode toggle label"
   },
   "forkConversation": {
     "message": "Fork",
@@ -1367,12 +1419,44 @@
     "message": "AI Studio",
     "description": "AI Studio platform label."
   },
-  "hideUpsell": {
-    "message": "업그레이드 안내 숨기기",
-    "description": "Hide the \"Upgrade to AI Ultra\" prompt"
+  "enableOnAIStudio": {
+    "message": "AI Studio에서 활성화",
+    "description": "Toggle to enable/disable Voyager on AI Studio"
   },
-  "hideUpsellHint": {
-    "message": "사이드바와 모델 메뉴에서 \"Google AI Ultra로 업그레이드\" 버튼을 숨깁니다",
-    "description": "Explanation for the upsell hiding feature"
+  "enableOnAIStudioHint": {
+    "message": "끄면 AI Studio의 Voyager 기능이 비활성화됩니다 (Prompt Manager 제외)",
+    "description": "Hint for AI Studio enable toggle"
+  },
+  "export_select_mode_only_user": {
+    "message": "사용자만 선택",
+    "description": "Export selection mode: select only user messages"
+  },
+  "export_select_mode_only_ai": {
+    "message": "AI만 선택",
+    "description": "Export selection mode: select only AI messages"
+  },
+  "aiOrgCopyButton": {
+    "message": "AI 정리",
+    "description": "AI 정리를 위해 폴더 구조와 대화를 복사하는 버튼"
+  },
+  "aiOrgCopied": { "message": "복사됨!", "description": "AI 정리 프롬프트 복사 후 확인" },
+  "aiOrgError": {
+    "message": "실패 — 먼저 Gemini를 열어주세요",
+    "description": "AI 정리 프롬프트 복사 실패 시 에러"
+  },
+  "aiOrgCopyHint": {
+    "message": "모든 대화와 폴더 구조를 프롬프트로 복사합니다. Gemini에 붙여넣어 가져올 수 있는 폴더 계획을 얻으세요.",
+    "description": "AI 정리 복사 버튼 아래 힌트 텍스트"
+  },
+  "aiOrgCurrentFolders": { "message": "현재 폴더 구조", "description": "AI 정리 프롬프트의 제목" },
+  "aiOrgUnfiledConversations": {
+    "message": "분류되지 않은 대화",
+    "description": "폴더에 없는 대화 제목"
+  },
+  "aiOrgEmpty": { "message": "비어 있음", "description": "AI 정리 프롬프트에서 빈 폴더 라벨" },
+  "aiOrgInstructions": { "message": "지시사항", "description": "AI 지시사항 섹션 제목" },
+  "aiOrgInstructionsBody": {
+    "message": "위의 대화와 폴더 구조를 기반으로 논리적인 폴더 계층으로 재정리해주세요. 아래 형식의 JSON 파일을 출력하여 Gemini Voyager 확장 프로그램에 직접 가져올 수 있도록 하세요(\"병합\" 가져오기 전략 사용). 기존의 잘 정리된 폴더는 유지하고, 필요에 따라 새 폴더를 만들고, 분류되지 않은 대화를 적절한 폴더로 이동하세요. 각 폴더에는 고유한 ID(짧은 랜덤 문자열)가 필요하며, 각 대화는 원래의 conversationId와 url을 유지해야 합니다.",
+    "description": "AI가 가져올 수 있는 폴더 구조를 생성하기 위한 지시사항 본문"
   }
 }
